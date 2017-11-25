@@ -30,8 +30,14 @@ type alias Cell =
     }
 
 
+type Player
+    = WhitePlayer
+    | BlackPlayer
+
+
 type alias Model =
     { board : Matrix.Matrix Cell
+    , currentPlayer : Player
     }
 
 
@@ -70,6 +76,7 @@ init path =
                     , List.repeat 9 whiteCell
                     ]
                     |> withDefault Matrix.empty
+          , currentPlayer = WhitePlayer
           }
         , Cmd.none
         )
@@ -89,9 +96,34 @@ update msg model =
         OnCellClick x y cell ->
             let
                 newBoard =
-                    Matrix.set y x ({ cell | state = Selected }) model.board
+                    if isCurrentPlayersCell model cell then
+                        model.board
+                            |> Matrix.map (\c -> { c | state = Normal })
+                            |> Matrix.set y x ({ cell | state = Selected })
+                    else
+                        model.board
             in
                 ( { model | board = newBoard }, Cmd.none )
+
+
+isCurrentPlayersCell : Model -> Cell -> Bool
+isCurrentPlayersCell model cell =
+    case model.currentPlayer of
+        WhitePlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == White
+
+                Nothing ->
+                    False
+
+        BlackPlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == Black
+
+                Nothing ->
+                    False
 
 
 
@@ -135,6 +167,7 @@ drawCell x y cell =
     div
         [ class "cell-container"
         , class (toString cell.state |> String.toLower)
+        , onClick (OnCellClick x y cell)
         , Html.Attributes.style
             [ if cell.noKill then
                 ( "background-color", "#f77171" )
@@ -147,7 +180,7 @@ drawCell x y cell =
             ]
         ]
         [ Html.div
-            [ onClick (OnCellClick x y cell) ]
+            []
             [ case cell.pebble of
                 Just pebble ->
                     drawPebble pebble
