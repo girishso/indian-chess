@@ -14,11 +14,7 @@ view model =
     div []
         [ h1 [] [ text "Chathurvimshanthi Koshtakam" ]
         , h2 []
-            [ text
-                (case model.gameState of
-                    CurrentPlayer player ->
-                        toString player
-                )
+            [ model.currentPlayer |> toString |> text
             ]
         , div []
             [ model.board |> drawBoard ]
@@ -88,6 +84,7 @@ drawCell x y cell =
         ]
 
 
+drawPebble : Pebble -> Html msg
 drawPebble pebble =
     case pebble of
         Black ->

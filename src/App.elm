@@ -14,7 +14,7 @@ update msg model =
     case msg of
         OnCellClick x y currentCell ->
             let
-                ( newBoard, newGameState ) =
+                ( newBoard, nextPlayer ) =
                     if isCurrentPlayersCell model currentCell then
                         ( model.board
                             |> Matrix.map (\cell -> { cell | state = Normal })
@@ -26,7 +26,18 @@ update msg model =
                                     else
                                         cell
                                 )
-                        , model.gameState
+                            |> Matrix.indexedMap
+                                (\j i cell ->
+                                    let
+                                        a =
+                                            isNeighbourEnemy i j model
+
+                                        _ =
+                                            Debug.log "String: " x
+                                    in
+                                        cell
+                                )
+                        , model.currentPlayer
                         )
                     else if
                         isAnyPebbleSelected model
@@ -36,28 +47,57 @@ update msg model =
                             == ValidMove
                     then
                         let
-                            _ =
-                                Debug.log "ix array: " (toString (Matrix.toIndexedArray model.board))
-
+                            -- _ =
+                            --     Debug.log "ix array: " (toString (Matrix.toIndexedArray model.board))
                             ( ( i, j ), selectedCell ) =
                                 getSelectedPebbleXY model.board
                         in
                             ( movePebble x y i j selectedCell currentCell model, togglePlayer model )
                     else
-                        ( model.board, model.gameState )
+                        ( model.board, model.currentPlayer )
             in
-                ( { model | board = newBoard, gameState = newGameState }, Cmd.none )
+                ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
+
+
+isNeighbourEnemy : Int -> Int -> Model -> Bool
+isNeighbourEnemy i j model =
+    let
+        a =
+            case (Matrix.get i j model.board) of
+                Just c ->
+                    Just c
+
+                Nothing ->
+                    Nothing
+    in
+        False
+
+
+isEnemy : Cell -> Player -> Bool
+isEnemy cell currentPlayer =
+    case currentPlayer of
+        WhitePlayer ->
+            case cell.pebble of
+                Just p ->
+                    p == Black
+
+                Nothing ->
+                    False
+
+        BlackPlayer ->
+            case cell.pebble of
+                Just p ->
+                    p == White
+
+                Nothing ->
+                    False
 
 
 togglePlayer model =
-    case model.gameState of
-        CurrentPlayer player ->
-            case player of
-                WhitePlayer ->
-                    CurrentPlayer BlackPlayer
-
-                BlackPlayer ->
-                    CurrentPlayer WhitePlayer
+    if model.currentPlayer == WhitePlayer then
+        BlackPlayer
+    else
+        WhitePlayer
 
 
 getSelectedPebbleXY board =
@@ -68,9 +108,6 @@ getSelectedPebbleXY board =
                     (\( ( y, x ), cell ) ->
                         cell.state == Selected
                     )
-
-        _ =
-            Debug.log "selectedCell" selectedCells
     in
         case Array.get 0 selectedCells of
             Just ( ( y, x ), cell ) ->
@@ -107,24 +144,22 @@ isNeighbour i j x y =
 
 isCurrentPlayersCell : Model -> Cell -> Bool
 isCurrentPlayersCell model cell =
-    case model.gameState of
-        CurrentPlayer player ->
-            case player of
-                WhitePlayer ->
-                    case cell.pebble of
-                        Just pebble ->
-                            pebble == White
+    case model.currentPlayer of
+        WhitePlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == White
 
-                        Nothing ->
-                            False
+                Nothing ->
+                    False
 
-                BlackPlayer ->
-                    case cell.pebble of
-                        Just pebble ->
-                            pebble == Black
+        BlackPlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == Black
 
-                        Nothing ->
-                            False
+                Nothing ->
+                    False
 
 
 

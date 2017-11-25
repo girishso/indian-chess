@@ -14,10 +14,6 @@ type CellState
     | ValidMove
 
 
-type GameState
-    = CurrentPlayer Player
-
-
 type alias Cell =
     { pebble : Maybe Pebble
     , noKill : Bool
@@ -32,7 +28,7 @@ type Player
 
 type alias Model =
     { board : Matrix.Matrix Cell
-    , gameState : GameState
+    , currentPlayer : Player
     }
 
 
@@ -106,7 +102,7 @@ init path =
                     , List.repeat 9 whiteCell
                     ]
                     |> Maybe.withDefault Matrix.empty
-          , gameState = CurrentPlayer WhitePlayer
+          , currentPlayer = WhitePlayer
           }
         , Cmd.none
         )
