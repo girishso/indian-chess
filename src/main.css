@@ -10,3 +10,24 @@ img {
   margin: 20px 0;
   max-width: 200px;
 }
+
+.debug-pos {
+  font-size: 0.5em;
+  color: #aaa;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.cell-container {
+  position: relative;
+}
+.center {
+    position: absolute;
+    left: 0;
+    top: 12%;
+    width: 100%;
+    text-align: center;
+}
+.row {
+  margin-bottom: -10px;
+}
