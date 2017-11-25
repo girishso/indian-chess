@@ -8,16 +8,20 @@ type Pebble
     | White
 
 
-type State
+type CellState
     = Normal
     | Selected
     | ValidMove
 
 
+type GameState
+    = CurrentPlayer Player
+
+
 type alias Cell =
     { pebble : Maybe Pebble
     , noKill : Bool
-    , state : State
+    , state : CellState
     }
 
 
@@ -28,7 +32,7 @@ type Player
 
 type alias Model =
     { board : Matrix.Matrix Cell
-    , currentPlayer : Player
+    , gameState : GameState
     }
 
 
@@ -52,35 +56,8 @@ blackCell =
     { emptyCell | pebble = Just Black }
 
 
-init : String -> ( Model, Cmd Msg )
-init path =
-    let
-        middleRow =
-            List.concat
-                [ [ emptyCell ]
-                , [ noKillEmptyCell ]
-                , [ emptyCell ]
-                , [ blackCell ]
-                , List.repeat 1 whiteCell
-                , List.repeat 2 emptyCell
-                , [ noKillEmptyCell ]
-                , [ emptyCell ]
-                ]
-    in
-        ( { board =
-                Matrix.fromList
-                    [ [ blackCell, blackCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, blackCell, blackCell ]
-                    , middleRow
-                    , [ whiteCell, emptyCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, whiteCell, whiteCell ]
-                    ]
-                    |> Maybe.withDefault Matrix.empty
-          , currentPlayer = WhitePlayer
-          }
-        , Cmd.none
-        )
 
-
-
+--
 -- init : String -> ( Model, Cmd Msg )
 -- init path =
 --     let
@@ -88,7 +65,8 @@ init path =
 --             List.concat
 --                 [ [ emptyCell ]
 --                 , [ noKillEmptyCell ]
---                 , List.repeat 2 emptyCell
+--                 , [ emptyCell ]
+--                 , [ blackCell ]
 --                 , List.repeat 1 whiteCell
 --                 , List.repeat 2 emptyCell
 --                 , [ noKillEmptyCell ]
@@ -97,12 +75,38 @@ init path =
 --     in
 --         ( { board =
 --                 Matrix.fromList
---                     [ List.repeat 9 blackCell
+--                     [ [ blackCell, blackCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, blackCell, blackCell ]
 --                     , middleRow
---                     , List.repeat 9 whiteCell
+--                     , [ whiteCell, emptyCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, whiteCell, whiteCell ]
 --                     ]
 --                     |> Maybe.withDefault Matrix.empty
---           , currentPlayer = WhitePlayer
+--           , gameState = CurrentPlayer WhitePlayer
 --           }
 --         , Cmd.none
 --         )
+--
+
+
+init : String -> ( Model, Cmd Msg )
+init path =
+    let
+        middleRow =
+            List.concat
+                [ [ emptyCell ]
+                , [ noKillEmptyCell ]
+                , List.repeat 5 emptyCell
+                , [ noKillEmptyCell ]
+                , [ emptyCell ]
+                ]
+    in
+        ( { board =
+                Matrix.fromList
+                    [ List.repeat 9 blackCell
+                    , middleRow
+                    , List.repeat 9 whiteCell
+                    ]
+                    |> Maybe.withDefault Matrix.empty
+          , gameState = CurrentPlayer WhitePlayer
+          }
+        , Cmd.none
+        )

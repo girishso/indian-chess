@@ -12,7 +12,15 @@ import Matrix
 view : Model -> Html Msg
 view model =
     div []
-        [ div []
+        [ h1 [] [ text "Chathurvimshanthi Koshtakam" ]
+        , h2 []
+            [ text
+                (case model.gameState of
+                    CurrentPlayer player ->
+                        toString player
+                )
+            ]
+        , div []
             [ model.board |> drawBoard ]
         , hr [] []
         , div
