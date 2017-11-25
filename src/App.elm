@@ -1,6 +1,7 @@
 module App exposing (..)
 
 import Html exposing (..)
+import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Matrix
 import Matrix.Extra exposing (prettyPrint)
@@ -16,9 +17,16 @@ type Pebble
     | White
 
 
+type State
+    = Normal
+    | Selected
+    | ValidMove
+
+
 type alias Cell =
     { pebble : Maybe Pebble
     , noKill : Bool
+    , state : State
     }
 
 
@@ -27,15 +35,25 @@ type alias Model =
     }
 
 
+emptyCell =
+    { pebble = Nothing, noKill = False, state = Normal }
+
+
+noKillEmptyCell =
+    { emptyCell | noKill = True }
+
+
+whiteCell =
+    { emptyCell | pebble = Just White }
+
+
+blackCell =
+    { emptyCell | pebble = Just Black }
+
+
 init : String -> ( Model, Cmd Msg )
 init path =
     let
-        emptyCell =
-            { pebble = Nothing, noKill = False }
-
-        noKillEmptyCell =
-            { emptyCell | noKill = True }
-
         middleRow =
             List.concat
                 [ [ emptyCell ]
@@ -44,15 +62,12 @@ init path =
                 , [ noKillEmptyCell ]
                 , [ emptyCell ]
                 ]
-
-        _ =
-            Debug.log "middleRow" middleRow
     in
         ( { board =
                 Matrix.fromList
-                    [ List.repeat 9 { pebble = Just Black, noKill = False }
+                    [ List.repeat 9 blackCell
                     , middleRow
-                    , List.repeat 9 { pebble = Just White, noKill = False }
+                    , List.repeat 9 whiteCell
                     ]
                     |> withDefault Matrix.empty
           }
@@ -65,12 +80,18 @@ init path =
 
 
 type Msg
-    = NoOp
+    = OnCellClick Int Int Cell
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        OnCellClick x y cell ->
+            let
+                newBoard =
+                    Matrix.set y x ({ cell | state = Selected }) model.board
+            in
+                ( { model | board = newBoard }, Cmd.none )
 
 
 
@@ -113,6 +134,7 @@ drawCell : Int -> Int -> Cell -> Html Msg
 drawCell x y cell =
     div
         [ class "cell-container"
+        , class (toString cell.state |> String.toLower)
         , Html.Attributes.style
             [ if cell.noKill then
                 ( "background-color", "#f77171" )
@@ -120,13 +142,12 @@ drawCell x y cell =
                 ( "background-color", "#fff" )
             , ( "width", "80px" )
             , ( "height", "80px" )
-            , ( "border", "4px solid #000" )
             , ( "margin", "0px" )
             , ( "display", "inline-block" )
             ]
         ]
         [ Html.div
-            []
+            [ onClick (OnCellClick x y cell) ]
             [ case cell.pebble of
                 Just pebble ->
                     drawPebble pebble

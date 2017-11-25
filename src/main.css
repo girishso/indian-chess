@@ -20,6 +20,7 @@ img {
 }
 .cell-container {
   position: relative;
+  border: 4px solid #000;
 }
 .center {
     position: absolute;
@@ -30,4 +31,14 @@ img {
 }
 .row {
   margin-bottom: -10px;
+}
+
+.selected {
+  border-color: #f00;
+  border-style: dashed;
+}
+
+.validmove {
+  border-color: #aaa;
+  border-style: dashed;
 }
