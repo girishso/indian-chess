@@ -59,19 +59,50 @@ init path =
             List.concat
                 [ [ emptyCell ]
                 , [ noKillEmptyCell ]
-                , List.repeat 5 emptyCell
+                , [ emptyCell ]
+                , [ blackCell ]
+                , List.repeat 1 whiteCell
+                , List.repeat 2 emptyCell
                 , [ noKillEmptyCell ]
                 , [ emptyCell ]
                 ]
     in
         ( { board =
                 Matrix.fromList
-                    [ List.repeat 9 blackCell
+                    [ [ blackCell, blackCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, blackCell, blackCell ]
                     , middleRow
-                    , List.repeat 9 whiteCell
+                    , [ whiteCell, emptyCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, whiteCell, whiteCell ]
                     ]
                     |> Maybe.withDefault Matrix.empty
           , currentPlayer = WhitePlayer
           }
         , Cmd.none
         )
+
+
+
+-- init : String -> ( Model, Cmd Msg )
+-- init path =
+--     let
+--         middleRow =
+--             List.concat
+--                 [ [ emptyCell ]
+--                 , [ noKillEmptyCell ]
+--                 , List.repeat 2 emptyCell
+--                 , List.repeat 1 whiteCell
+--                 , List.repeat 2 emptyCell
+--                 , [ noKillEmptyCell ]
+--                 , [ emptyCell ]
+--                 ]
+--     in
+--         ( { board =
+--                 Matrix.fromList
+--                     [ List.repeat 9 blackCell
+--                     , middleRow
+--                     , List.repeat 9 whiteCell
+--                     ]
+--                     |> Maybe.withDefault Matrix.empty
+--           , currentPlayer = WhitePlayer
+--           }
+--         , Cmd.none
+--         )

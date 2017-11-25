@@ -18,10 +18,28 @@ update msg model =
                         model.board
                             |> Matrix.map (\c -> { c | state = Normal })
                             |> Matrix.set y x ({ cell | state = Selected })
+                            |> Matrix.indexedMap
+                                (\j i c ->
+                                    if isNeighbour i j x y && c.pebble == Nothing then
+                                        { c | state = ValidMove }
+                                    else
+                                        c
+                                )
                     else
                         model.board
             in
                 ( { model | board = newBoard }, Cmd.none )
+
+
+isNeighbour i j x y =
+    -- top
+    (i == x - 1 && j == y)
+        -- bottom
+        || (i == x + 1 && j == y)
+        -- left
+        || (i == x && j == y - 1)
+        -- right
+        || (i == x && j == y + 1)
 
 
 isCurrentPlayersCell : Model -> Cell -> Bool
