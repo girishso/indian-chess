@@ -29,16 +29,35 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init path =
-    ( { board =
-            Matrix.fromList
-                [ List.repeat 9 { pebble = Just Black, noKill = False }
-                , List.repeat 9 { pebble = Nothing, noKill = False }
-                , List.repeat 9 { pebble = Just White, noKill = False }
+    let
+        emptyCell =
+            { pebble = Nothing, noKill = False }
+
+        noKillEmptyCell =
+            { emptyCell | noKill = True }
+
+        middleRow =
+            List.concat
+                [ [ emptyCell ]
+                , [ noKillEmptyCell ]
+                , List.repeat 5 emptyCell
+                , [ noKillEmptyCell ]
+                , [ emptyCell ]
                 ]
-                |> withDefault Matrix.empty
-      }
-    , Cmd.none
-    )
+
+        _ =
+            Debug.log "middleRow" middleRow
+    in
+        ( { board =
+                Matrix.fromList
+                    [ List.repeat 9 { pebble = Just Black, noKill = False }
+                    , middleRow
+                    , List.repeat 9 { pebble = Just White, noKill = False }
+                    ]
+                    |> withDefault Matrix.empty
+          }
+        , Cmd.none
+        )
 
 
 
@@ -63,6 +82,7 @@ view model =
     div []
         [ div []
             [ model.board |> drawBoard ]
+        , hr [] []
         , div
             []
             [ prettyPrint model.board ]
@@ -94,7 +114,11 @@ drawCell x y cell =
     div
         [ class "cell-container"
         , Html.Attributes.style
-            [ ( "width", "80px" )
+            [ if cell.noKill then
+                ( "background-color", "#f77171" )
+              else
+                ( "background-color", "#fff" )
+            , ( "width", "80px" )
             , ( "height", "80px" )
             , ( "border", "4px solid #000" )
             , ( "margin", "0px" )
@@ -129,7 +153,7 @@ drawPebble pebble =
             div [ class " center" ] [ i [ class "fa fa-circle fa-2x" ] [] ]
 
         White ->
-            div [] [ i [ class "fa fa-circle-o fa-2x center" ] [] ]
+            div [ class " center" ] [ i [ class "fa fa-circle-o fa-2x " ] [] ]
 
 
 
