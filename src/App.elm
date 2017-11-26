@@ -15,6 +15,7 @@ update msg model =
             let
                 ( newBoard, nextPlayer ) =
                     if isCurrentPlayersCell model currentCell then
+                        -- select cell and calculate valid moves
                         ( calculateValidMoves model x y currentCell, model.currentPlayer )
                     else if
                         isAnyPebbleSelected model

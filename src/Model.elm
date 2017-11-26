@@ -36,18 +36,22 @@ type Msg
     = OnCellClick Int Int Cell
 
 
+emptyCell : Cell
 emptyCell =
     { pebble = Nothing, noKill = False, state = Normal }
 
 
+noKillEmptyCell : Cell
 noKillEmptyCell =
     { emptyCell | noKill = True }
 
 
+whiteCell : Cell
 whiteCell =
     { emptyCell | pebble = Just White }
 
 
+blackCell : Cell
 blackCell =
     { emptyCell | pebble = Just Black }
 

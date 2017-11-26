@@ -70,16 +70,17 @@ drawCell x y cell =
 
                 Nothing ->
                     div [] []
-            , div [ class "debug-pos" ]
-                [ text <|
-                    String.join " "
-                        [ "("
-                        , (toString x)
-                        , ", "
-                        , (toString y)
-                        , ")"
-                        ]
-                ]
+
+            -- , div [ class "debug-pos" ]
+            --     [ text <|
+            --         String.join " "
+            --             [ "("
+            --             , (toString x)
+            --             , ", "
+            --             , (toString y)
+            --             , ")"
+            --             ]
+            --     ]
             ]
         ]
 
