@@ -15,40 +15,13 @@ update msg model =
             let
                 ( newBoard, nextPlayer ) =
                     if isCurrentPlayersCell model currentCell then
-                        ( model.board
-                            |> Matrix.map (\cell -> { cell | state = Normal })
-                            |> Matrix.set y x ({ currentCell | state = Selected })
-                            |> Matrix.indexedMap
-                                (\j i cell ->
-                                    if isNeighbour i j x y && cell.pebble == Nothing then
-                                        { cell | state = ValidMove }
-                                    else
-                                        cell
-                                )
-                            |> Matrix.indexedMap
-                                (\j i cell ->
-                                    if (cell.pebble == Nothing) then
-                                        -- kill position empty?
-                                        if
-                                            -- is neighbour enemy?
-                                            ((i == x && j == y - 2) && isEnemyIsKillable (Matrix.get (y - 1) x model.board) model.currentPlayer)
-                                                || ((i == x && j == y + 2) && isEnemyIsKillable (Matrix.get (y + 1) x model.board) model.currentPlayer)
-                                                || ((i == x - 2 && j == y) && isEnemyIsKillable (Matrix.get y (x - 1) model.board) model.currentPlayer)
-                                                || ((i == x + 2 && j == y) && isEnemyIsKillable (Matrix.get y (x + 1) model.board) model.currentPlayer)
-                                        then
-                                            { cell | state = ValidMove }
-                                        else
-                                            cell
-                                    else
-                                        cell
-                                )
-                        , model.currentPlayer
-                        )
+                        ( calculateValidMoves model x y currentCell, model.currentPlayer )
                     else if
                         isAnyPebbleSelected model
                             && (currentCell.pebble == Nothing)
                             && (currentCell.state == ValidMove)
                     then
+                        -- move/delete pebble
                         let
                             ( ( i, j ), selectedCell ) =
                                 getSelectedPebbleXY model.board
@@ -58,6 +31,39 @@ update msg model =
                         ( model.board, model.currentPlayer )
             in
                 ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
+
+
+calculateValidMoves : Model -> Int -> Int -> Cell -> Matrix.Matrix Cell
+calculateValidMoves model x y currentCell =
+    model.board
+        |> Matrix.map (\cell -> { cell | state = Normal })
+        |> Matrix.set y x ({ currentCell | state = Selected })
+        |> Matrix.indexedMap
+            -- valid moves in immediate neighbours
+            (\j i cell ->
+                if isNeighbour i j x y && cell.pebble == Nothing then
+                    { cell | state = ValidMove }
+                else
+                    cell
+            )
+        |> Matrix.indexedMap
+            -- possible kill positions
+            (\j i cell ->
+                if (cell.pebble == Nothing) then
+                    -- kill position empty?
+                    if
+                        -- is neighbour enemy and not in noKill cell?
+                        ((i == x && j == y - 2) && isEnemyIsKillable (Matrix.get (y - 1) x model.board) model.currentPlayer)
+                            || ((i == x && j == y + 2) && isEnemyIsKillable (Matrix.get (y + 1) x model.board) model.currentPlayer)
+                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Matrix.get y (x - 1) model.board) model.currentPlayer)
+                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Matrix.get y (x + 1) model.board) model.currentPlayer)
+                    then
+                        { cell | state = ValidMove }
+                    else
+                        cell
+                else
+                    cell
+            )
 
 
 isEnemyIsKillable : Maybe Cell -> Player -> Bool
