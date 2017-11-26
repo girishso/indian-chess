@@ -3,7 +3,6 @@ module App exposing (..)
 import Html exposing (programWithFlags)
 import Matrix
 import Matrix.Extra
-import Maybe exposing (withDefault)
 import View exposing (view)
 import Model exposing (..)
 import Array
@@ -28,23 +27,27 @@ update msg model =
                                 )
                             |> Matrix.indexedMap
                                 (\j i cell ->
-                                    let
-                                        a =
-                                            isNeighbourEnemy i j model
-
-                                        _ =
-                                            Debug.log "String: " x
-                                    in
+                                    if (cell.pebble == Nothing) then
+                                        -- kill position empty?
+                                        if
+                                            -- is neighbour enemy?
+                                            ((i == x && j == y - 2) && isEnemy (Matrix.get (y - 1) x model.board) model.currentPlayer)
+                                                || ((i == x && j == y + 2) && isEnemy (Matrix.get (y + 1) x model.board) model.currentPlayer)
+                                                || ((i == x - 2 && j == y) && isEnemy (Matrix.get y (x - 1) model.board) model.currentPlayer)
+                                                || ((i == x + 2 && j == y) && isEnemy (Matrix.get y (x + 1) model.board) model.currentPlayer)
+                                        then
+                                            { cell | state = ValidMove }
+                                        else
+                                            cell
+                                    else
                                         cell
                                 )
                         , model.currentPlayer
                         )
                     else if
                         isAnyPebbleSelected model
-                            && currentCell.pebble
-                            == Nothing
-                            && currentCell.state
-                            == ValidMove
+                            && (currentCell.pebble == Nothing)
+                            && (currentCell.state == ValidMove)
                     then
                         let
                             -- _ =
@@ -59,38 +62,29 @@ update msg model =
                 ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
 
 
-isNeighbourEnemy : Int -> Int -> Model -> Bool
-isNeighbourEnemy i j model =
-    let
-        a =
-            case (Matrix.get i j model.board) of
-                Just c ->
-                    Just c
-
-                Nothing ->
-                    Nothing
-    in
-        False
-
-
-isEnemy : Cell -> Player -> Bool
+isEnemy : Maybe Cell -> Player -> Bool
 isEnemy cell currentPlayer =
-    case currentPlayer of
-        WhitePlayer ->
-            case cell.pebble of
-                Just p ->
-                    p == Black
+    case cell of
+        Just c ->
+            case currentPlayer of
+                WhitePlayer ->
+                    case c.pebble of
+                        Just p ->
+                            p == Black
 
-                Nothing ->
-                    False
+                        Nothing ->
+                            False
 
-        BlackPlayer ->
-            case cell.pebble of
-                Just p ->
-                    p == White
+                BlackPlayer ->
+                    case c.pebble of
+                        Just p ->
+                            p == White
 
-                Nothing ->
-                    False
+                        Nothing ->
+                            False
+
+        Nothing ->
+            False
 
 
 togglePlayer model =
@@ -118,10 +112,14 @@ getSelectedPebbleXY board =
 
 
 movePebble to_i to_j from_x from_y from_cell to_cell model =
-    model.board
-        |> Matrix.set to_j to_i ({ to_cell | pebble = from_cell.pebble })
-        |> Matrix.set from_x from_y ({ from_cell | pebble = Nothing })
-        |> Matrix.map (\cell -> { cell | state = Normal })
+    let
+        _ =
+            Debug.log "movePebble: " ( to_i, to_j, from_y, from_x )
+    in
+        model.board
+            |> Matrix.set to_j to_i ({ to_cell | pebble = from_cell.pebble })
+            |> Matrix.set from_x from_y ({ from_cell | pebble = Nothing })
+            |> Matrix.map (\cell -> { cell | state = Normal })
 
 
 isAnyPebbleSelected model =
