@@ -21,7 +21,7 @@ view model =
         , hr [] []
         , div
             []
-            [ prettyPrint model.board ]
+            []
         ]
 
 

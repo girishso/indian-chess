@@ -52,37 +52,6 @@ blackCell =
     { emptyCell | pebble = Just Black }
 
 
-
---
--- init : String -> ( Model, Cmd Msg )
--- init path =
---     let
---         middleRow =
---             List.concat
---                 [ [ emptyCell ]
---                 , [ noKillEmptyCell ]
---                 , [ emptyCell ]
---                 , [ blackCell ]
---                 , List.repeat 1 whiteCell
---                 , List.repeat 2 emptyCell
---                 , [ noKillEmptyCell ]
---                 , [ emptyCell ]
---                 ]
---     in
---         ( { board =
---                 Matrix.fromList
---                     [ [ blackCell, blackCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, blackCell, blackCell ]
---                     , middleRow
---                     , [ whiteCell, emptyCell, blackCell, emptyCell, emptyCell, emptyCell, emptyCell, whiteCell, whiteCell ]
---                     ]
---                     |> Maybe.withDefault Matrix.empty
---           , gameState = CurrentPlayer WhitePlayer
---           }
---         , Cmd.none
---         )
---
-
-
 init : String -> ( Model, Cmd Msg )
 init path =
     let
