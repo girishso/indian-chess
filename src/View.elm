@@ -11,16 +11,22 @@ import Matrix
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 [] [ text "Chathurvimshanthi Koshtakam" ]
-        , h2 []
-            [ model.currentPlayer |> toString |> text
+    div [ class "container is-fluid" ]
+        [ h2 [] [ text "Chathurvimshanthi Koshtakam" ]
+        , h3 []
+            [ (case model.currentPlayer of
+                WhitePlayer ->
+                    "White"
+
+                BlackPlayer ->
+                    "Black"
+              )
+                |> text
             ]
         , div []
             [ model.board |> drawBoard ]
-        , hr [] []
         , div
-            []
+            [ class "white-pebble", Html.Attributes.style [ ( "width", "500px" ), ( "height", "500px" ) ] ]
             []
         ]
 
@@ -89,7 +95,7 @@ drawPebble : Pebble -> Html msg
 drawPebble pebble =
     case pebble of
         Black ->
-            div [ class " center" ] [ i [ class "fa fa-circle fa-2x" ] [] ]
+            div [ class "center black-pebble", Html.Attributes.style [ ( "width", "80px" ), ( "height", "80px" ) ] ] []
 
         White ->
-            div [ class " center" ] [ i [ class "fa fa-circle-o fa-2x " ] [] ]
+            div [ class "center white-pebble", Html.Attributes.style [ ( "width", "80px" ), ( "height", "80px" ) ] ] []
