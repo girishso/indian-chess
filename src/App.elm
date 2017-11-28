@@ -25,7 +25,7 @@ update msg model =
                         -- move/delete pebble
                         let
                             ( ( i, j ), selectedCell ) =
-                                getSelectedPebbleXY model.board
+                                getPebbleAtXY model.board (\( ( y, x ), cell ) -> cell.state == Selected)
                         in
                             ( movePebble x y i j selectedCell currentCell model, togglePlayer model )
                     else
@@ -102,15 +102,12 @@ togglePlayer model =
         WhitePlayer
 
 
-getSelectedPebbleXY : Matrix.Matrix Cell -> ( ( Int, Int ), Cell )
-getSelectedPebbleXY board =
+getPebbleAtXY : Matrix.Matrix Cell -> (( ( Int, Int ), Cell ) -> Bool) -> ( ( Int, Int ), Cell )
+getPebbleAtXY board cond =
     let
         selectedCells =
             Matrix.toIndexedArray board
-                |> Array.filter
-                    (\( ( y, x ), cell ) ->
-                        cell.state == Selected
-                    )
+                |> Array.filter cond
     in
         case Array.get 0 selectedCells of
             Just ( ( y, x ), cell ) ->
@@ -170,26 +167,6 @@ isNeighbour i j x y =
         || (i == x && j == y - 1)
         -- right
         || (i == x && j == y + 1)
-
-
-isCurrentPlayersCell : Model -> Cell -> Bool
-isCurrentPlayersCell model cell =
-    case model.currentPlayer of
-        WhitePlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == White
-
-                Nothing ->
-                    False
-
-        BlackPlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == Black
-
-                Nothing ->
-                    False
 
 
 

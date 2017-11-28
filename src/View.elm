@@ -12,7 +12,7 @@ import Matrix
 view : Model -> Html Msg
 view model =
     div [ class "container is-fluid" ]
-        [ h2 [] [ text "Chathurvimshanthi Koshtakam" ]
+        [ h2 [] [ text "Chathurvimshanthi Koshtaka" ]
         , h3 []
             [ (case model.currentPlayer of
                 WhitePlayer ->
@@ -25,9 +25,19 @@ view model =
             ]
         , div []
             [ model.board |> drawBoard ]
-        , div
-            [ class "white-pebble", Html.Attributes.style [ ( "width", "500px" ), ( "height", "500px" ) ] ]
-            []
+        , if isWin model then
+            h3 []
+                [ (case model.currentPlayer of
+                    WhitePlayer ->
+                        "Black is the Winner!"
+
+                    BlackPlayer ->
+                        "White is the Winner!"
+                  )
+                    |> text
+                ]
+          else
+            Html.text ""
         ]
 
 
@@ -95,7 +105,14 @@ drawPebble : Pebble -> Html msg
 drawPebble pebble =
     case pebble of
         Black ->
-            div [ class "center black-pebble", Html.Attributes.style [ ( "width", "80px" ), ( "height", "80px" ) ] ] []
+            div [ class " center" ] [ i [ class "fa fa-circle fa-2x" ] [] ]
 
         White ->
-            div [ class "center white-pebble", Html.Attributes.style [ ( "width", "80px" ), ( "height", "80px" ) ] ] []
+            div [ class " center" ] [ i [ class "fa fa-circle-o fa-2x" ] [] ]
+
+
+isWin : Model -> Bool
+isWin model =
+    model.board
+        |> Matrix.filter (isCurrentPlayersCell model)
+        |> Array.isEmpty

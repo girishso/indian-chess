@@ -79,3 +79,23 @@ init path =
           }
         , Cmd.none
         )
+
+
+isCurrentPlayersCell : Model -> Cell -> Bool
+isCurrentPlayersCell model cell =
+    case model.currentPlayer of
+        WhitePlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == White
+
+                Nothing ->
+                    False
+
+        BlackPlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == Black
+
+                Nothing ->
+                    False
