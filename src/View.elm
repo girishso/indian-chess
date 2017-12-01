@@ -1,32 +1,28 @@
 module View exposing (view)
 
+import Array
 import Html exposing (..)
-import Html.Events exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Matrix
 import Matrix.Extra exposing (prettyPrint)
 import Model exposing (..)
-import Array
-import Matrix
 
 
 view : Model -> Html Msg
 view model =
     div [ class "container is-fluid" ]
-        [ h2 [] [ text "Chathurvimshanthi Koshtaka" ]
-        , h3 []
-            [ (case model.currentPlayer of
-                WhitePlayer ->
-                    "White"
-
-                BlackPlayer ->
-                    "Black"
-              )
-                |> text
+        [ h1 [] [ text "Chathurvimshathi Koshtaka" ]
+        , div [ class "columns" ]
+            [ div [ class "column" ] []
+            , div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+            , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
+            , div [ class "column" ] []
             ]
         , div []
             [ model.board |> drawBoard ]
         , if isWin model then
-            h3 []
+            h3 [ class "winner" ]
                 [ (case model.currentPlayer of
                     WhitePlayer ->
                         "Black is the Winner!"
@@ -39,6 +35,21 @@ view model =
           else
             Html.text ""
         ]
+
+
+currentPlayerIcon : Model -> Player -> Html msg
+currentPlayerIcon model player =
+    div [ class "w30" ]
+        [ i [ classIfCurrentPlayer model player "fa fa-angle-double-right" ] []
+        ]
+
+
+classIfCurrentPlayer : Model -> Player -> String -> Attribute msg
+classIfCurrentPlayer model player className =
+    if model.currentPlayer == player then
+        class className
+    else
+        class ""
 
 
 drawBoard : Matrix.Matrix Cell -> Html Msg
@@ -72,9 +83,6 @@ drawCell x y cell =
                 ( "background-color", "#f77171" )
               else
                 ( "background-color", "#fff" )
-            , ( "width", "80px" )
-            , ( "height", "80px" )
-            , ( "margin", "0px" )
             , ( "display", "inline-block" )
             ]
         ]
@@ -105,10 +113,10 @@ drawPebble : Pebble -> Html msg
 drawPebble pebble =
     case pebble of
         Black ->
-            div [ class " center" ] [ i [ class "fa fa-circle fa-2x" ] [] ]
+            div [ class "pebble center" ] [ i [ class "fa fa-circle fa-2x" ] [] ]
 
         White ->
-            div [ class " center" ] [ i [ class "fa fa-circle-o fa-2x" ] [] ]
+            div [ class "pebble center" ] [ i [ class "fa fa-circle-o fa-2x" ] [] ]
 
 
 isWin : Model -> Bool

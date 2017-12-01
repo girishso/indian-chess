@@ -63,16 +63,16 @@ init path =
             List.concat
                 [ [ emptyCell ]
                 , [ noKillEmptyCell ]
-                , List.repeat 5 emptyCell
+                , List.repeat 4 emptyCell
                 , [ noKillEmptyCell ]
                 , [ emptyCell ]
                 ]
     in
         ( { board =
                 Matrix.fromList
-                    [ List.repeat 9 blackCell
+                    [ List.repeat 8 blackCell
                     , middleRow
-                    , List.repeat 9 whiteCell
+                    , List.repeat 8 whiteCell
                     ]
                     |> Maybe.withDefault Matrix.empty
           , currentPlayer = WhitePlayer
