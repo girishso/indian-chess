@@ -6,6 +6,7 @@ import Matrix
 import Matrix.Extra
 import Model exposing (..)
 import View exposing (view)
+import Ports exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

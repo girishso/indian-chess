@@ -12,15 +12,19 @@ import Model exposing (..)
 view : Model -> Html Msg
 view model =
     div [ class "container is-fluid" ]
-        [ h1 [] [ text "Chathurvimshathi Koshtaka" ]
+        [ h1 [ class "is-size-1" ] [ text "Chathurvimshathi Koshtaka" ]
         , div [ class "columns" ]
-            [ div [ class "column" ] []
-            , div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
-            , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
-            , div [ class "column" ] []
+            []
+        , div [ class "columns is-desktop is-centered " ]
+            [ div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ]
+                [ h4 [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ] ]
+            , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ]
+                [ h4 [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ] ]
+            , div [ class "column is-9" ]
+                [ div []
+                    [ model.board |> drawBoard ]
+                ]
             ]
-        , div []
-            [ model.board |> drawBoard ]
         , if isWin model then
             h3 [ class "winner" ]
                 [ (case model.currentPlayer of
