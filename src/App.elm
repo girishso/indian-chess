@@ -78,30 +78,20 @@ calculateValidMoves model x y currentCell =
 
 isEnemyIsKillable : Maybe Cell -> Player -> Bool
 isEnemyIsKillable cell currentPlayer =
-    case cell of
-        Just c ->
-            if c.noKill then
-                False
-            else
-                case currentPlayer of
-                    WhitePlayer ->
-                        case c.pebble of
-                            Just pebble ->
-                                pebble == Black
+    cell
+        |> Maybe.map
+            (\c ->
+                if c.noKill then
+                    False
+                else
+                    case currentPlayer of
+                        WhitePlayer ->
+                            c.pebble |> Maybe.map (\pebble -> pebble == Black) |> Maybe.withDefault False
 
-                            Nothing ->
-                                False
-
-                    BlackPlayer ->
-                        case c.pebble of
-                            Just pebble ->
-                                pebble == White
-
-                            Nothing ->
-                                False
-
-        Nothing ->
-            False
+                        BlackPlayer ->
+                            c.pebble |> Maybe.map (\pebble -> pebble == White) |> Maybe.withDefault False
+            )
+        |> (Maybe.withDefault False)
 
 
 togglePlayer model =
