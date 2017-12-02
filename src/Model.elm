@@ -1,6 +1,6 @@
 module Model exposing (..)
 
-import Matrix
+import Dict exposing (..)
 
 
 type Pebble
@@ -26,8 +26,12 @@ type Player
     | BlackPlayer
 
 
+type alias Position =
+    ( Int, Int )
+
+
 type alias Model =
-    { board : Matrix.Matrix Cell
+    { board : Dict.Dict Position Cell
     , currentPlayer : Player
     }
 
@@ -61,24 +65,32 @@ init path =
     let
         middleRow =
             List.concat
-                [ [ emptyCell ]
-                , [ noKillEmptyCell ]
-                , List.repeat 4 emptyCell
-                , [ noKillEmptyCell ]
-                , [ emptyCell ]
+                [ repeatDict 0 0 1 emptyCell
+                , repeatDict 1 1 1 noKillEmptyCell
+                , repeatDict 2 5 1 emptyCell
+                , repeatDict 6 6 1 noKillEmptyCell
+                , repeatDict 7 7 1 emptyCell
                 ]
+
+        board =
+            [ repeatDict 0 7 0 blackCell
+            , middleRow
+            , repeatDict 0 7 2 whiteCell
+            ]
+                |> List.concat
+                |> Dict.fromList
     in
-        ( { board =
-                Matrix.fromList
-                    [ List.repeat 8 blackCell
-                    , middleRow
-                    , List.repeat 8 whiteCell
-                    ]
-                    |> Maybe.withDefault Matrix.empty
+        ( { board = board
           , currentPlayer = WhitePlayer
           }
         , Cmd.none
         )
+
+
+repeatDict : Int -> Int -> Int -> Cell -> List ( Position, Cell )
+repeatDict startX uptoX y cell =
+    List.range startX uptoX
+        |> List.map (\i -> ( ( i, y ), cell ))
 
 
 isCurrentPlayersCell : Model -> Cell -> Bool

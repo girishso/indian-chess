@@ -2,11 +2,12 @@ module App exposing (..)
 
 import Array
 import Html exposing (programWithFlags)
-import Matrix
-import Matrix.Extra
 import Model exposing (..)
-import View exposing (view)
 import Ports exposing (..)
+import View exposing (view)
+import Dict exposing (..)
+import Dict.Extra exposing (find)
+import Utils exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -26,7 +27,7 @@ update msg model =
                         -- move/delete pebble
                         let
                             ( ( i, j ), selectedCell ) =
-                                getPebbleAtXY model.board (\( ( y, x ), cell ) -> cell.state == Selected)
+                                (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.board)
                         in
                             ( movePebble x y i j selectedCell currentCell model, togglePlayer model )
                     else
@@ -35,30 +36,37 @@ update msg model =
                 ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
 
 
-calculateValidMoves : Model -> Int -> Int -> Cell -> Matrix.Matrix Cell
+getPositionCellIfExists k f dict =
+    dict
+        |> Dict.Extra.find f
+        |> Maybe.withDefault
+            ( ( -1, -1 ), emptyCell )
+
+
+calculateValidMoves : Model -> Int -> Int -> Cell -> Dict Position Cell
 calculateValidMoves model x y currentCell =
     model.board
-        |> Matrix.map (\cell -> { cell | state = Normal })
-        |> Matrix.set y x ({ currentCell | state = Selected })
-        |> Matrix.indexedMap
+        |> Dict.map (\_ cell -> { cell | state = Normal })
+        |> updateIfExists ( x, y ) (\cell -> { cell | state = Selected })
+        |> Dict.map
             -- valid moves in immediate neighbours
-            (\j i cell ->
+            (\( i, j ) cell ->
                 if isNeighbour i j x y && cell.pebble == Nothing then
                     { cell | state = ValidMove }
                 else
                     cell
             )
-        |> Matrix.indexedMap
+        |> Dict.map
             -- possible kill positions
-            (\j i cell ->
+            (\( i, j ) cell ->
                 if (cell.pebble == Nothing) then
                     -- kill position empty?
                     if
                         -- is neighbour enemy and not in noKill cell?
-                        ((i == x && j == y - 2) && isEnemyIsKillable (Matrix.get (y - 1) x model.board) model.currentPlayer)
-                            || ((i == x && j == y + 2) && isEnemyIsKillable (Matrix.get (y + 1) x model.board) model.currentPlayer)
-                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Matrix.get y (x - 1) model.board) model.currentPlayer)
-                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Matrix.get y (x + 1) model.board) model.currentPlayer)
+                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) model.board) model.currentPlayer)
+                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) model.board) model.currentPlayer)
+                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) model.board) model.currentPlayer)
+                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) model.board) model.currentPlayer)
                     then
                         { cell | state = ValidMove }
                     else
@@ -103,50 +111,35 @@ togglePlayer model =
         WhitePlayer
 
 
-getPebbleAtXY : Matrix.Matrix Cell -> (( ( Int, Int ), Cell ) -> Bool) -> ( ( Int, Int ), Cell )
-getPebbleAtXY board cond =
-    let
-        selectedCells =
-            Matrix.toIndexedArray board
-                |> Array.filter cond
-    in
-        case Array.get 0 selectedCells of
-            Just ( ( y, x ), cell ) ->
-                ( ( y, x ), cell )
-
-            Nothing ->
-                ( ( -1, -1 ), emptyCell )
-
-
-movePebble : Int -> Int -> Int -> Int -> Cell -> Cell -> Model -> Matrix.Matrix Cell
+movePebble : Int -> Int -> Int -> Int -> Cell -> Cell -> Model -> Dict Position Cell
 movePebble toI toJ fromX fromY fromCell toCell model =
     let
         newBoard =
-            if abs (fromY - toI) == 2 then
-                killPebble ((fromY + toI) // 2) fromX model
-            else if abs (fromX - toJ) == 2 then
-                killPebble fromY ((fromX + toJ) // 2) model
+            if abs (fromX - toI) == 2 then
+                killPebble ((fromX + toI) // 2) fromY model
+            else if abs (fromY - toJ) == 2 then
+                killPebble fromX ((fromY + toJ) // 2) model
             else
                 model.board
     in
         newBoard
-            |> Matrix.set toJ toI ({ toCell | pebble = fromCell.pebble })
-            |> Matrix.set fromX fromY ({ fromCell | pebble = Nothing })
-            |> Matrix.map (\cell -> { cell | state = Normal })
+            |> updateIfExists ( toI, toJ ) (\cell -> { toCell | pebble = fromCell.pebble })
+            |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Nothing })
+            |> Dict.map (\_ cell -> { cell | state = Normal })
 
 
-killPebble : Int -> Int -> Model -> Matrix.Matrix Cell
+killPebble : Int -> Int -> Model -> Dict Position Cell
 killPebble x y model =
     let
         cell =
-            Matrix.get y x model.board
+            Dict.get ( x, y ) model.board
     in
         case cell of
             Just cell ->
                 if cell.noKill then
                     model.board
                 else
-                    Matrix.set y x ({ cell | pebble = Nothing }) model.board
+                    updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) model.board
 
             Nothing ->
                 model.board
@@ -154,8 +147,8 @@ killPebble x y model =
 
 isAnyPebbleSelected model =
     model.board
-        |> Matrix.filter (\c -> c.state == Selected)
-        |> Array.isEmpty
+        |> filterValues (\c -> c.state == Selected)
+        |> Dict.isEmpty
         |> not
 
 

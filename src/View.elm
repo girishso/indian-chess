@@ -4,9 +4,9 @@ import Array
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Matrix
-import Matrix.Extra exposing (prettyPrint)
 import Model exposing (..)
+import Dict exposing (..)
+import Utils exposing (..)
 
 
 view : Model -> Html Msg
@@ -56,20 +56,23 @@ classIfCurrentPlayer model player className =
         class ""
 
 
-drawBoard : Matrix.Matrix Cell -> Html Msg
+drawBoard : Dict Position Cell -> Html Msg
 drawBoard board =
     let
         drawrow row_num =
             div
                 [ class "row" ]
-                (Matrix.getRow row_num board
-                    |> Maybe.withDefault Array.empty
-                    |> Array.indexedMap (drawCell row_num)
-                    |> Array.toList
+                (List.range 0 7
+                    |> List.map
+                        (\x ->
+                            Dict.get ( x, row_num ) board
+                                |> Maybe.withDefault emptyCell
+                                |> drawCell x row_num
+                        )
                 )
 
         height =
-            Matrix.height board
+            2
     in
         List.range 0 height
             |> List.map drawrow
@@ -97,7 +100,7 @@ drawCell x y cell =
                     drawPebble pebble
 
                 Nothing ->
-                    div [] []
+                    Html.text ""
 
             -- , div [ class "debug-pos" ]
             --     [ text <|
@@ -126,5 +129,5 @@ drawPebble pebble =
 isWin : Model -> Bool
 isWin model =
     model.board
-        |> Matrix.filter (isCurrentPlayersCell model)
-        |> Array.isEmpty
+        |> filterValues (isCurrentPlayersCell model)
+        |> Dict.isEmpty
