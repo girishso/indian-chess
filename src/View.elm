@@ -16,11 +16,12 @@ view model =
         , div [ class "columns" ]
             []
         , div [ class "columns is-desktop is-centered " ]
-            [ div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ]
-                [ h4 [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ] ]
-            , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ]
-                [ h4 [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ] ]
-            , div [ class "column is-9" ]
+            [ div [ class "column tablet-only" ] [ text "tablet-only" ]
+            , div [ class "column" ]
+                [ div [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+                , div [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
+                ]
+            , div [ class "column is-9 " ]
                 [ div []
                     [ model.board |> drawBoard ]
                 ]
@@ -38,6 +39,7 @@ view model =
                 ]
           else
             Html.text ""
+        , div [ class "h100" ] []
         ]
 
 
