@@ -11,36 +11,99 @@ import Utils exposing (..)
 
 view : Model -> Html Msg
 view model =
-    div [ class "container is-fluid" ]
-        [ h1 [ class "is-size-1" ] [ text "Chathurvimshathi Koshtaka" ]
-        , div [ class "columns" ]
-            []
-        , div [ class "columns is-desktop is-centered " ]
-            [ div [ class "column tablet-only" ] [ text "tablet-only" ]
-            , div [ class "column" ]
-                [ div [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
-                , div [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
-                ]
-            , div [ class "column is-9 " ]
-                [ div []
-                    [ model.board |> drawBoard ]
+    section [ class "hero is-fullheight is-default is-bold" ]
+        [ div [ class "hero-head" ]
+            [ nav [ class "navbar" ]
+                [ div [ class "container" ]
+                    [ div [ class "navbar-brand" ]
+                        [ a [ class "navbar-item", href "../", rel "noreferrer" ]
+                            [ img [ alt "Logo", src "../images/bulma.png" ]
+                                []
+                            ]
+                        , span [ class "navbar-burger burger", attribute "data-target" "navbarMenu" ]
+                            [ span []
+                                []
+                            , span []
+                                []
+                            , span []
+                                []
+                            ]
+                        ]
+                    , div [ class "navbar-menu", id "navbarMenu" ]
+                        [ div [ class "navbar-end" ]
+                            [ a [ class "navbar-item is-active", rel "noreferrer" ]
+                                [ text "Home            " ]
+                            , a [ class "navbar-item", rel "noreferrer" ]
+                                [ text "Examples            " ]
+                            , a [ class "navbar-item", rel "noreferrer" ]
+                                [ text "Features            " ]
+                            , a [ class "navbar-item", rel "noreferrer" ]
+                                [ text "Team            " ]
+                            , a [ class "navbar-item", rel "noreferrer" ]
+                                [ text "Help            " ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
-        , if isWin model then
-            h3 [ class "winner" ]
-                [ (case model.currentPlayer of
-                    WhitePlayer ->
-                        "Black is the Winner!"
-
-                    BlackPlayer ->
-                        "White is the Winner!"
-                  )
-                    |> text
+        , div [ class "" ]
+            [ div [ class "container has-text-centered" ]
+                [ div [ class "columns" ]
+                    [ div [ class "column" ]
+                        [ div [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+                        , div [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
+                        , div []
+                            [ model.board |> drawBoard ]
+                        ]
+                    ]
                 ]
-          else
-            Html.text ""
-        , div [ class "h100" ] []
+            ]
+        , div [ class "hero-foot" ]
+            [ div [ class "container" ]
+                [ div [ class "tabs is-centered" ]
+                    [ ul []
+                        [ li []
+                            [ a [ rel "noreferrer" ]
+                                [ text "And this at the bottom" ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ]
+
+
+
+-- div [ class "container is-fluid" ]
+--     [ h1 [ class "is-size-1" ] [ text "Chathurvimshathi Koshtaka" ]
+--     , div [ class "columns" ]
+--         []
+--     , div [ class "columns is-desktop is-centered " ]
+--         [ div [ class "column tablet-only" ] [ text "tablet-only" ]
+--         , div [ class "column" ]
+--             [ div [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+--             , div [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
+--             ]
+--         , div [ class "column is-9 " ]
+--             [ div []
+--                 [ model.board |> drawBoard ]
+--             ]
+--         ]
+--     , if isWin model then
+--         h3 [ class "winner" ]
+--             [ (case model.currentPlayer of
+--                 WhitePlayer ->
+--                     "Black is the Winner!"
+--
+--                 BlackPlayer ->
+--                     "White is the Winner!"
+--               )
+--                 |> text
+--             ]
+--       else
+--         Html.text ""
+--     , div [ class "h100" ] []
+--     ]
 
 
 currentPlayerIcon : Model -> Player -> Html msg
