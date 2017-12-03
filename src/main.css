@@ -71,12 +71,12 @@ body {
 .center {
     position: absolute;
     left: 0;
-    top: 12%;
+    top: 7%;
     width: 100%;
     text-align: center;
 }
 .row {
-  margin-bottom: -13px;
+  margin-bottom: -8px;
 }
 .tablet-only {
   display: none;
@@ -159,6 +159,10 @@ body {
   .info {
       width: 100%;
   }
+  .center {
+    top: 12%;
+  }
+
 }
 @media (min-width:1024px) { /* big landscape tablets, laptops, and desktops */
 
@@ -170,6 +174,10 @@ body {
   .info {
     width: 20%;
   }
+  .center {
+    top: 12%;
+  }
+
 }
 @media (min-width:1281px) { /* hi-res laptops and desktops */
 
@@ -180,5 +188,8 @@ body {
 
   .info {
     width: 20%;
+  }
+  .center {
+    top: 12%;
   }
 }
