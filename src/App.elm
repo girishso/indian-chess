@@ -35,6 +35,9 @@ update msg model =
             in
                 ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
 
+        ToggleHowToPlay ->
+            ( { model | isHowToPlayPopupActive = (not model.isHowToPlayPopupActive) }, Cmd.none )
+
 
 getPositionCellIfExists k f dict =
     dict

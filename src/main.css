@@ -1,4 +1,8 @@
 
+body {
+  color: #222;
+}
+
 .debug-pos {
   font-size: 0.5em;
   color: #aaa;
@@ -80,6 +84,22 @@
 .ta-center {
   text-align: center;
 }
+#nav-toggle-state {
+  display: none;
+}
+
+#nav-toggle-state:checked ~ .nav-menu {
+  display: block;
+}
+.is-brand {
+  padding-left: 1rem;
+  font-weight: bold;
+}
+
+.ml2 {
+  margin-left: 2rem;
+}
+
 /* mobile */
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
@@ -126,6 +146,23 @@
   .tablet-only {
     display: block;
   }
+
+  .is-brand {
+    padding-left: 1rem!important;
+    font-weight: bold;
+  }
 }
-@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ }
-@media (min-width:1281px) { /* hi-res laptops and desktops */ }
+@media (min-width:1024px) { /* big landscape tablets, laptops, and desktops */
+
+  .is-brand {
+    padding-left: 1rem!important;
+    font-weight: bold;
+  }
+}
+@media (min-width:1281px) { /* hi-res laptops and desktops */
+
+  .is-brand {
+    padding-left: 1rem!important;
+    font-weight: bold;
+  }
+}

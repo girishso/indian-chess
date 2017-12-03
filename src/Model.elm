@@ -33,11 +33,14 @@ type alias Position =
 type alias Model =
     { board : Dict.Dict Position Cell
     , currentPlayer : Player
+    , isHowToPlayPopupActive : Bool
+    , isAboutPopupActive : Bool
     }
 
 
 type Msg
     = OnCellClick Int Int Cell
+    | ToggleHowToPlay
 
 
 emptyCell : Cell
@@ -82,6 +85,8 @@ init path =
     in
         ( { board = board
           , currentPlayer = WhitePlayer
+          , isHowToPlayPopupActive = False
+          , isAboutPopupActive = False
           }
         , Cmd.none
         )
