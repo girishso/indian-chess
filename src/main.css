@@ -100,6 +100,10 @@ body {
   margin-left: 2rem;
 }
 
+.info {
+  flex-grow: 1;
+}
+
 /* mobile */
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
@@ -151,6 +155,10 @@ body {
     padding-left: 1rem!important;
     font-weight: bold;
   }
+
+  .info {
+      width: 100%;
+  }
 }
 @media (min-width:1024px) { /* big landscape tablets, laptops, and desktops */
 
@@ -158,11 +166,19 @@ body {
     padding-left: 1rem!important;
     font-weight: bold;
   }
+
+  .info {
+    width: 20%;
+  }
 }
 @media (min-width:1281px) { /* hi-res laptops and desktops */
 
   .is-brand {
     padding-left: 1rem!important;
     font-weight: bold;
+  }
+
+  .info {
+    width: 20%;
   }
 }

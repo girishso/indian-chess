@@ -1,11 +1,12 @@
 module View exposing (view)
 
 import Array
+import Dict exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Model exposing (..)
-import Dict exposing (..)
+import String exposing (dropRight)
 import Utils exposing (..)
 
 
@@ -38,10 +39,16 @@ view model =
         , div [ class "" ]
             [ div [ class "container has-text-centered" ]
                 [ div [ class "columns" ]
-                    [ div [ class "column" ]
-                        [ div [ class "is-size-5" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
-                        , div [ class "is-size-5" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
-                        , div []
+                    [ div [ class "column  is-12-mobile is-2-tablet is-2-desktop" ]
+                        [ div [ class "" ]
+                            [ div [ class "is-size-4" ] [ text "Current player: " ]
+                            , div [ class "is-size-5" ]
+                                [ model.currentPlayer |> toString |> dropRight 6 |> text
+                                ]
+                            ]
+                        ]
+                    , div [ class "column" ]
+                        [ div []
                             [ model.board |> drawBoard ]
                         ]
                     ]
