@@ -50,23 +50,23 @@ view model =
                     , div [ class "column" ]
                         [ div []
                             [ model.board |> drawBoard ]
+                        , if isWin model then
+                            h3 [ class "winner is-size-3" ]
+                                [ (case model.currentPlayer of
+                                    WhitePlayer ->
+                                        "Black is the Winner!"
+
+                                    BlackPlayer ->
+                                        "White is the Winner!"
+                                  )
+                                    |> text
+                                ]
+                          else
+                            Html.text ""
                         ]
                     ]
                 ]
             ]
-        , if isWin model then
-            h3 [ class "winner" ]
-                [ (case model.currentPlayer of
-                    WhitePlayer ->
-                        "Black is the Winner!"
-
-                    BlackPlayer ->
-                        "White is the Winner!"
-                  )
-                    |> text
-                ]
-          else
-            Html.text ""
         , div [ class "h100" ] []
         , div [ class "hero-foot" ]
             [ div [ class "container" ]
