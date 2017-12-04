@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "firebase": "^4.7.0",
+    "lz-string": "^1.4.4"
+  }
+}
