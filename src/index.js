@@ -23,10 +23,10 @@ const gameId = getParameterByName("game_id")
 console.log("gameId: ", gameId)
 
 if (gameId === null || gameId.trim() === "") {
-    const createNewGame = welcomeApp => {
+    const createNewGame = app => {
         gamesRootRef.push({ other_player: "waiting" }).then(data => {
             console.log("  >> data: ", data.key)
-            welcomeApp.ports.newGameCreated.send(data.key)
+            app.ports.newGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
 
             data.on("value", state => {
                 console.log("  >> state: ", state.val())
