@@ -1,6 +1,8 @@
 module Model exposing (..)
 
 import Dict exposing (..)
+import Json.Decode as Decode exposing (field)
+import Json.Encode as Encode exposing (..)
 
 
 type Pebble
@@ -66,6 +68,9 @@ blackCell =
 init : String -> ( Model, Cmd Msg )
 init path =
     let
+        _ =
+            Debug.log "whiteCell" whiteCell
+
         middleRow =
             List.concat
                 [ repeatDict 0 0 1 emptyCell
@@ -82,6 +87,9 @@ init path =
             ]
                 |> List.concat
                 |> Dict.fromList
+
+        _ =
+            Debug.log "borad" board
     in
         ( { board = board
           , currentPlayer = WhitePlayer
@@ -116,3 +124,48 @@ isCurrentPlayersCell model cell =
 
                 Nothing ->
                     False
+
+
+cellDecoder : Decode.Decoder Cell
+cellDecoder =
+    Decode.map3 Cell
+        (Decode.maybe <| field "pebble" pebbleDecoder)
+        (field "noKill" Decode.bool)
+        (field "state" cellStateDecoder)
+
+
+pebbleDecoder : Decode.Decoder Pebble
+pebbleDecoder =
+    Decode.string
+        |> Decode.andThen
+            (\str ->
+                case str of
+                    "White" ->
+                        Decode.succeed White
+
+                    "Black" ->
+                        Decode.succeed Black
+
+                    somethingElse ->
+                        Decode.fail <| "Unknown pebble: " ++ somethingElse
+            )
+
+
+cellStateDecoder : Decode.Decoder CellState
+cellStateDecoder =
+    Decode.string
+        |> Decode.andThen
+            (\str ->
+                case str of
+                    "Normal" ->
+                        Decode.succeed Normal
+
+                    "Selected" ->
+                        Decode.succeed Selected
+
+                    "ValidMove" ->
+                        Decode.succeed ValidMove
+
+                    somethingElse ->
+                        Decode.fail <| "Unknown state: " ++ somethingElse
+            )
