@@ -48,18 +48,17 @@ if (gameId === null || gameId.trim() === "") {
     let app = App.embed(document.getElementById("root"), logoPath)
     gamesRootRef.child(gameId).set({ other_player: "joined" })
     gamesRootRef.child(gameId).on("value", state => {
-      const json = state.val()
-      console.log("  >> joined state: ", json)
-      if(typeof json.game_state !== "undefined" && json.game_state !== null) {
-          let uncmpd = decompress(json.game_state)
-          // console.log("  >> uncmpd: ", uncmpd)
-          app.ports.gameStateChanged.send(JSON.parse(uncmpd))
+        const json = state.val()
+        // console.log("  >> joined state: ", json)
+        if (typeof json.game_state !== "undefined" && json.game_state !== null) {
+            let uncmpd = decompress(json.game_state)
+            // console.log("  >> uncmpd: ", uncmpd)
+            app.ports.gameStateChanged.send(JSON.parse(uncmpd))
         }
     })
     app.ports.sendGameState.subscribe(str => {
         let cmpd = compress(str)
-        gamesRootRef.child(gameId).set({game_state: cmpd})
-      }
-    )
+        gamesRootRef.child(gameId).set({ game_state: cmpd })
+    })
     app.ports.alert.subscribe(str => window.alert(str))
 }
