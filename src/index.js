@@ -15,6 +15,9 @@ const getParameterByName = (name_, url) => {
     return decodeURIComponent(results[2].replace(/\+/g, " "))
 }
 
+const compress = str => LZString.compressToUTF16(str)
+const decompress = str => LZString.decompressFromUTF16(str)
+
 const firebase_config = require("../secrets/firebase-app-config.json")
 firebase.initializeApp(firebase_config)
 const gamesRootRef = firebase.database().ref("games/")
@@ -26,11 +29,13 @@ if (gameId === null || gameId.trim() === "") {
     const createNewGame = app => {
         gamesRootRef.push({ other_player: "waiting" }).then(data => {
             console.log("  >> data: ", data.key)
-            app.ports.newGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
+            app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
 
             data.on("value", state => {
-                console.log("  >> state: ", state.val())
-                if (state.val().other_player === "joined") {
+                // wait for other player to join and then open the game
+                const json = state.val()
+                console.log("  >> state: ", json)
+                if (json.other_player === "joined") {
                     window.location.href = `/?game_id=${data.key}`
                 }
             })
@@ -42,30 +47,19 @@ if (gameId === null || gameId.trim() === "") {
 } else {
     let app = App.embed(document.getElementById("root"), logoPath)
     gamesRootRef.child(gameId).set({ other_player: "joined" })
+    gamesRootRef.child(gameId).on("value", state => {
+      const json = state.val()
+      console.log("  >> joined state: ", json)
+      if(typeof json.game_state !== "undefined" && json.game_state !== null) {
+          let uncmpd = decompress(json.game_state)
+          // console.log("  >> uncmpd: ", uncmpd)
+          app.ports.gameStateChanged.send(JSON.parse(uncmpd))
+        }
+    })
+    app.ports.sendGameState.subscribe(str => {
+        let cmpd = compress(str)
+        gamesRootRef.child(gameId).set({game_state: cmpd})
+      }
+    )
     app.ports.alert.subscribe(str => window.alert(str))
 }
-
-// const base64ToArrayBuffer = (base64) => {
-//     var binary_string =  window.atob(base64);
-//     var len = binary_string.length;
-//     var bytes = new Uint8Array( len );
-//     for (var i = 0; i < len; i++)        {
-//         bytes[i] = binary_string.charCodeAt(i);
-//     }
-//     return bytes;
-// }
-//
-// const arrayBufferToBase64 = ( buffer ) => {
-//     var binary = '';
-//     var bytes = new Uint8Array( buffer );
-//     var len = bytes.byteLength;
-//     for (var i = 0; i < len; i++) {
-//         binary += String.fromCharCode( bytes[ i ] );
-//     }
-//     return window.btoa( binary );
-// }
-
-// const str = '{"h": [Helllo world worlds dfvfdfb gf bgf g g g gf gf g g gh gh hg h h gh]}'
-// const b64 = window.btoa(str)
-// console.log(str.length, b64.length)
-// console.log(window.atob(LZString.decompress(LZString.compress(b64))))

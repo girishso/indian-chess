@@ -1,13 +1,16 @@
 module App exposing (..)
 
 import Array
-import Html exposing (programWithFlags)
-import Model exposing (..)
-import Ports exposing (..)
-import View exposing (view)
 import Dict exposing (..)
 import Dict.Extra exposing (find)
+import Html exposing (programWithFlags)
+import Html.Attributes exposing (value)
+import Json.Decode as Decode exposing (field)
+import Json.Encode as Encode exposing (..)
+import Model exposing (..)
+import Ports exposing (..)
 import Utils exposing (..)
+import View exposing (view)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -32,11 +35,36 @@ update msg model =
                             ( movePebble x y i j selectedCell currentCell model, togglePlayer model )
                     else
                         ( model.board, model.currentPlayer )
+
+                newModel =
+                    { model | board = newBoard, currentPlayer = nextPlayer }
             in
-                ( { model | board = newBoard, currentPlayer = nextPlayer }, Cmd.none )
+                ( newModel
+                , Encode.encode 1 (boardEncoder newModel.board) |> sendGameState
+                )
 
         ToggleHowToPlay ->
             ( { model | isHowToPlayPopupActive = (not model.isHowToPlayPopupActive) }, Cmd.none )
+
+        GameStateChanged json ->
+            ( { model
+                | board =
+                    case (json) of
+                        Ok value ->
+                            value
+
+                        Err error ->
+                            let
+                                _ =
+                                    Debug.log "GameStateChanged err" error
+
+                                ( model, _ ) =
+                                    init ""
+                            in
+                                model.board
+              }
+            , Cmd.none
+            )
 
 
 getPositionCellIfExists k f dict =
@@ -157,6 +185,15 @@ isNeighbour i j x y =
 
 
 
+-- subscriptions
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    gameStateChanged (GameStateChanged << Decode.decodeValue boardDecoder)
+
+
+
 ---- PROGRAM ----
 
 
@@ -166,5 +203,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }

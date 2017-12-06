@@ -14,7 +14,7 @@ type Msg
     | NewGameCreated String
 
 
-port newGameCreated : (String -> msg) -> Sub msg
+port newSharedGameCreated : (String -> msg) -> Sub msg
 
 
 port createNewGame : () -> Cmd msg
@@ -39,7 +39,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    newGameCreated NewGameCreated
+    newSharedGameCreated NewGameCreated
 
 
 view model =

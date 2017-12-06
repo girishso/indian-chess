@@ -36,13 +36,13 @@ type alias Model =
     { board : Dict.Dict Position Cell
     , currentPlayer : Player
     , isHowToPlayPopupActive : Bool
-    , isAboutPopupActive : Bool
     }
 
 
 type Msg
     = OnCellClick Int Int Cell
     | ToggleHowToPlay
+    | GameStateChanged (Result String (Dict Position Cell))
 
 
 
@@ -96,7 +96,6 @@ init path =
         ( { board = board
           , currentPlayer = WhitePlayer
           , isHowToPlayPopupActive = False
-          , isAboutPopupActive = False
           }
         , Cmd.none
         )
@@ -156,6 +155,7 @@ boardDecoder =
             |> Decode.map toDict
 
 
+decodeCellWrapper : Decode.Decoder CellWrapper
 decodeCellWrapper =
     Decode.map2 CellWrapper
         (field "pos" positionDecoder)
