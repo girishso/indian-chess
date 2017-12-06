@@ -45,6 +45,14 @@ type Msg
     | ToggleHowToPlay
 
 
+
+-- required for encode/decode to json
+
+
+type alias CellWrapper =
+    { pos : Position, cell : Cell }
+
+
 emptyCell : Cell
 emptyCell =
     { pebble = Nothing, noKill = False, state = Normal }
@@ -68,9 +76,6 @@ blackCell =
 init : String -> ( Model, Cmd Msg )
 init path =
     let
-        _ =
-            Debug.log "whiteCell" whiteCell
-
         middleRow =
             List.concat
                 [ repeatDict 0 0 1 emptyCell
@@ -87,9 +92,6 @@ init path =
             ]
                 |> List.concat
                 |> Dict.fromList
-
-        _ =
-            Debug.log "borad" board
     in
         ( { board = board
           , currentPlayer = WhitePlayer
@@ -126,12 +128,88 @@ isCurrentPlayersCell model cell =
                     False
 
 
+
+-- Encoders and Decoders
+
+
+boardEncoder : Dict.Dict Position Cell -> Encode.Value
+boardEncoder board =
+    board
+        |> Dict.toList
+        |> List.map (\( pos, cell ) -> { pos = pos, cell = cell })
+        |> List.map cellWrapperEncoder
+        |> Encode.list
+
+
+boardDecoder : Decode.Decoder (Dict Position Cell)
+boardDecoder =
+    let
+        asTuple : CellWrapper -> ( Position, Cell )
+        asTuple cw =
+            ( cw.pos, cw.cell )
+
+        toDict : List CellWrapper -> Dict Position Cell
+        toDict wrappers =
+            wrappers |> List.map asTuple |> Dict.fromList
+    in
+        (Decode.list decodeCellWrapper)
+            |> Decode.map toDict
+
+
+decodeCellWrapper =
+    Decode.map2 CellWrapper
+        (field "pos" positionDecoder)
+        (field "cell" cellDecoder)
+
+
+cellWrapperEncoder : CellWrapper -> Encode.Value
+cellWrapperEncoder v =
+    Encode.object
+        [ ( "pos", positionEncoder v.pos )
+        , ( "cell", cellEncoder v.cell )
+        ]
+
+
+positionDecoder : Decode.Decoder Position
+positionDecoder =
+    Decode.map2 (,) (Decode.index 0 Decode.int) (Decode.index 1 Decode.int)
+
+
+positionEncoder : Position -> Encode.Value
+positionEncoder ( x, y ) =
+    Encode.list [ Encode.int x, Encode.int y ]
+
+
 cellDecoder : Decode.Decoder Cell
 cellDecoder =
     Decode.map3 Cell
         (Decode.maybe <| field "pebble" pebbleDecoder)
         (field "noKill" Decode.bool)
         (field "state" cellStateDecoder)
+
+
+cellEncoder : Cell -> Encode.Value
+cellEncoder cell =
+    Encode.object
+        [ ( "pebble", pebbleEncoder cell.pebble )
+        , ( "noKill", Encode.bool cell.noKill )
+        , ( "state", cellStateEncoder cell.state )
+        ]
+
+
+pebbleEncoder : Maybe Pebble -> Encode.Value
+pebbleEncoder v =
+    case v of
+        Just pebble ->
+            case pebble of
+                Black ->
+                    Encode.string "Black"
+
+                White ->
+                    Encode.string "White"
+
+        Nothing ->
+            Encode.null
 
 
 pebbleDecoder : Decode.Decoder Pebble
@@ -149,6 +227,19 @@ pebbleDecoder =
                     somethingElse ->
                         Decode.fail <| "Unknown pebble: " ++ somethingElse
             )
+
+
+cellStateEncoder : CellState -> Encode.Value
+cellStateEncoder v =
+    case v of
+        Normal ->
+            Encode.string "Normal"
+
+        Selected ->
+            Encode.string "Selected"
+
+        ValidMove ->
+            Encode.string "ValidMove"
 
 
 cellStateDecoder : Decode.Decoder CellState
