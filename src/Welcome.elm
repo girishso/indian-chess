@@ -5,8 +5,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 
-type Model
-    = Nothing
+type alias Model =
+    { showGameUrl : Bool, gameUrl : String }
 
 
 type Msg
@@ -21,7 +21,7 @@ port createNewGame : () -> Cmd msg
 
 
 init str =
-    ( Nothing, Cmd.none )
+    ( Model False "", Cmd.none )
 
 
 update msg model =
@@ -34,7 +34,7 @@ update msg model =
                 _ =
                     Debug.log "NewGameCreatedxxx" url
             in
-                ( model, Cmd.none )
+                ( { model | showGameUrl = True, gameUrl = url }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -109,7 +109,36 @@ view model =
                     ]
                 ]
             ]
+        , gameUrlPopup model
         ]
+
+
+gameUrlPopup : Model -> Html Msg
+gameUrlPopup model =
+    if not model.showGameUrl then
+        Html.text ""
+    else
+        div [ class "modal is-active" ]
+            [ div [ class "modal-background" ]
+                []
+            , div [ class "modal-card" ]
+                [ header [ class "modal-card-head" ]
+                    [ p [ class "modal-card-title" ]
+                        [ text "Game url to share..." ]
+                    ]
+                , section [ class "modal-card-body" ]
+                    [ div [ class "content" ]
+                        [ a [ href model.gameUrl, target "_blank" ] [ text model.gameUrl ]
+                        ]
+                    ]
+                , footer [ class "modal-card-foot" ]
+                    [ div []
+                        [ text "Brought you by:"
+                        , a [ href "http://cuberoot.in", target "_blank" ] [ text " Cube Root Software" ]
+                        ]
+                    ]
+                ]
+            ]
 
 
 main : Program String Model Msg
