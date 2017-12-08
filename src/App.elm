@@ -40,26 +40,23 @@ update msg model =
                     { model | board = newBoard, currentPlayer = nextPlayer }
             in
                 ( newModel
-                , Encode.encode 1 (boardEncoder newModel.board) |> sendGameState
+                , Encode.encode 1 (modelEncoder newModel) |> sendGameState
                 )
 
         GameStateChanged json ->
-            ( { model
-                | board =
-                    case (json) of
-                        Ok value ->
-                            value
+            ( case (json) of
+                Ok value ->
+                    value
 
-                        Err error ->
-                            let
-                                _ =
-                                    Debug.log "GameStateChanged err" error
+                Err error ->
+                    let
+                        _ =
+                            Debug.log "GameStateChanged err" error
 
-                                ( model, _ ) =
-                                    init ""
-                            in
-                                model.board
-              }
+                        ( model, _ ) =
+                            init ""
+                    in
+                        model
             , Cmd.none
             )
 
@@ -187,7 +184,7 @@ isNeighbour i j x y =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    gameStateChanged (GameStateChanged << Decode.decodeValue boardDecoder)
+    gameStateChanged (GameStateChanged << Decode.decodeValue modelDecoder)
 
 
 

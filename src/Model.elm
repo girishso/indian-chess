@@ -40,7 +40,7 @@ type alias Model =
 
 type Msg
     = OnCellClick Int Int Cell
-    | GameStateChanged (Result String (Dict Position Cell))
+    | GameStateChanged (Result String Model)
 
 
 
@@ -126,6 +126,48 @@ isCurrentPlayersCell model cell =
 
 
 -- Encoders and Decoders
+
+
+modelDecoder : Decode.Decoder Model
+modelDecoder =
+    Decode.map2 Model
+        (field "board" boardDecoder)
+        (field "currentPlayer" playerDecoder)
+
+
+modelEncoder : Model -> Encode.Value
+modelEncoder v =
+    Encode.object
+        [ ( "board", boardEncoder v.board )
+        , ( "currentPlayer", playerEncoder v.currentPlayer )
+        ]
+
+
+playerEncoder : Player -> Encode.Value
+playerEncoder v =
+    case v of
+        WhitePlayer ->
+            Encode.string "WhitePlayer"
+
+        BlackPlayer ->
+            Encode.string "BlackPlayer"
+
+
+playerDecoder : Decode.Decoder Player
+playerDecoder =
+    Decode.string
+        |> Decode.andThen
+            (\string ->
+                case string of
+                    "WhitePlayer" ->
+                        Decode.succeed WhitePlayer
+
+                    "BlackPlayer" ->
+                        Decode.succeed BlackPlayer
+
+                    _ ->
+                        Decode.fail "Invalid Player"
+            )
 
 
 boardEncoder : Dict.Dict Position Cell -> Encode.Value
