@@ -43,9 +43,6 @@ update msg model =
                 , Encode.encode 1 (boardEncoder newModel.board) |> sendGameState
                 )
 
-        ToggleHowToPlay ->
-            ( { model | isHowToPlayPopupActive = (not model.isHowToPlayPopupActive) }, Cmd.none )
-
         GameStateChanged json ->
             ( { model
                 | board =
