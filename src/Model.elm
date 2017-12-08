@@ -33,6 +33,11 @@ type alias Position =
 
 
 type alias Model =
+    { gameState : GameState
+    }
+
+
+type alias GameState =
     { board : Dict.Dict Position Cell
     , currentPlayer : Player
     }
@@ -40,7 +45,7 @@ type alias Model =
 
 type Msg
     = OnCellClick Int Int Cell
-    | GameStateChanged (Result String Model)
+    | GameStateChanged (Result String GameState)
 
 
 
@@ -91,8 +96,10 @@ init path =
                 |> List.concat
                 |> Dict.fromList
     in
-        ( { board = board
-          , currentPlayer = WhitePlayer
+        ( { gameState =
+                { board = board
+                , currentPlayer = WhitePlayer
+                }
           }
         , Cmd.none
         )
@@ -106,7 +113,7 @@ repeatDict startX uptoX y cell =
 
 isCurrentPlayersCell : Model -> Cell -> Bool
 isCurrentPlayersCell model cell =
-    case model.currentPlayer of
+    case model.gameState.currentPlayer of
         WhitePlayer ->
             case cell.pebble of
                 Just pebble ->
@@ -128,14 +135,14 @@ isCurrentPlayersCell model cell =
 -- Encoders and Decoders
 
 
-modelDecoder : Decode.Decoder Model
+modelDecoder : Decode.Decoder GameState
 modelDecoder =
-    Decode.map2 Model
+    Decode.map2 GameState
         (field "board" boardDecoder)
         (field "currentPlayer" playerDecoder)
 
 
-modelEncoder : Model -> Encode.Value
+modelEncoder : GameState -> Encode.Value
 modelEncoder v =
     Encode.object
         [ ( "board", boardEncoder v.board )

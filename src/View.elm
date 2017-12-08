@@ -20,16 +20,16 @@ view model =
                         [ div [ class "" ]
                             [ div [ class "is-size-5" ]
                                 [ text "Current player: "
-                                , model.currentPlayer |> toString |> dropRight 6 |> text
+                                , model.gameState.currentPlayer |> toString |> dropRight 6 |> text
                                 ]
                             ]
                         ]
                     , div [ class "column" ]
                         [ div []
-                            [ model.board |> drawBoard ]
+                            [ model.gameState.board |> drawBoard ]
                         , if isWin model then
                             h3 [ class "winner is-size-3" ]
-                                [ (case model.currentPlayer of
+                                [ (case model.gameState.currentPlayer of
                                     WhitePlayer ->
                                         "Black is the Winner!"
 
@@ -118,7 +118,7 @@ currentPlayerIcon model player =
 
 classIfCurrentPlayer : Model -> Player -> String -> Attribute msg
 classIfCurrentPlayer model player className =
-    if model.currentPlayer == player then
+    if model.gameState.currentPlayer == player then
         class className
     else
         class ""
@@ -196,6 +196,6 @@ drawPebble pebble =
 
 isWin : Model -> Bool
 isWin model =
-    model.board
+    model.gameState.board
         |> filterValues (isCurrentPlayersCell model)
         |> Dict.isEmpty

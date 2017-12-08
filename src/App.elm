@@ -21,7 +21,7 @@ update msg model =
                 ( newBoard, nextPlayer ) =
                     if isCurrentPlayersCell model currentCell then
                         -- select cell and calculate valid moves
-                        ( calculateValidMoves model x y currentCell, model.currentPlayer )
+                        ( calculateValidMoves model x y currentCell, model.gameState.currentPlayer )
                     else if
                         isAnyPebbleSelected model
                             && (currentCell.pebble == Nothing)
@@ -30,33 +30,42 @@ update msg model =
                         -- move/delete pebble
                         let
                             ( ( i, j ), selectedCell ) =
-                                (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.board)
+                                (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.gameState.board)
                         in
-                            ( movePebble x y i j selectedCell currentCell model, togglePlayer model )
+                            ( movePebble x y i j selectedCell currentCell model, togglePlayer model.gameState )
                     else
-                        ( model.board, model.currentPlayer )
+                        ( model.gameState.board, model.gameState.currentPlayer )
+
+                gameState =
+                    model.gameState
+
+                newGameState =
+                    { gameState | board = newBoard, currentPlayer = nextPlayer }
 
                 newModel =
-                    { model | board = newBoard, currentPlayer = nextPlayer }
+                    { model | gameState = newGameState }
             in
                 ( newModel
-                , Encode.encode 1 (modelEncoder newModel) |> sendGameState
+                , Encode.encode 1 (modelEncoder newGameState) |> sendGameState
                 )
 
         GameStateChanged json ->
-            ( case (json) of
-                Ok value ->
-                    value
+            ( { model
+                | gameState =
+                    case (json) of
+                        Ok value ->
+                            value
 
-                Err error ->
-                    let
-                        _ =
-                            Debug.log "GameStateChanged err" error
+                        Err error ->
+                            let
+                                _ =
+                                    Debug.log "GameStateChanged err" error
 
-                        ( model, _ ) =
-                            init ""
-                    in
-                        model
+                                ( model, _ ) =
+                                    init ""
+                            in
+                                model.gameState
+              }
             , Cmd.none
             )
 
@@ -70,7 +79,7 @@ getPositionCellIfExists k f dict =
 
 calculateValidMoves : Model -> Int -> Int -> Cell -> Dict Position Cell
 calculateValidMoves model x y currentCell =
-    model.board
+    model.gameState.board
         |> Dict.map (\_ cell -> { cell | state = Normal })
         |> updateIfExists ( x, y ) (\cell -> { cell | state = Selected })
         |> Dict.map
@@ -88,10 +97,10 @@ calculateValidMoves model x y currentCell =
                     -- kill position empty?
                     if
                         -- is neighbour enemy and not in noKill cell?
-                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) model.board) model.currentPlayer)
-                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) model.board) model.currentPlayer)
-                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) model.board) model.currentPlayer)
-                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) model.board) model.currentPlayer)
+                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) model.gameState.board) model.gameState.currentPlayer)
+                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) model.gameState.board) model.gameState.currentPlayer)
+                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) model.gameState.board) model.gameState.currentPlayer)
+                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) model.gameState.board) model.gameState.currentPlayer)
                     then
                         { cell | state = ValidMove }
                     else
@@ -135,7 +144,7 @@ movePebble toI toJ fromX fromY fromCell toCell model =
             else if abs (fromY - toJ) == 2 then
                 killPebble fromX ((fromY + toJ) // 2) model
             else
-                model.board
+                model.gameState.board
     in
         newBoard
             |> updateIfExists ( toI, toJ ) (\cell -> { toCell | pebble = fromCell.pebble })
@@ -147,21 +156,21 @@ killPebble : Int -> Int -> Model -> Dict Position Cell
 killPebble x y model =
     let
         cell =
-            Dict.get ( x, y ) model.board
+            Dict.get ( x, y ) model.gameState.board
     in
         case cell of
             Just cell ->
                 if cell.noKill then
-                    model.board
+                    model.gameState.board
                 else
-                    updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) model.board
+                    updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) model.gameState.board
 
             Nothing ->
-                model.board
+                model.gameState.board
 
 
 isAnyPebbleSelected model =
-    model.board
+    model.gameState.board
         |> filterValues (\c -> c.state == Selected)
         |> Dict.isEmpty
         |> not

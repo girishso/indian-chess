@@ -47,6 +47,7 @@ if (gameId === null || gameId.trim() === "") {
 } else {
     let app = App.embed(document.getElementById("root"), logoPath)
     gamesRootRef.child(gameId).set({ other_player: "joined" })
+    console.log("other player")
     gamesRootRef.child(gameId).on("value", state => {
         const json = state.val()
         // console.log("  >> joined state: ", json)
