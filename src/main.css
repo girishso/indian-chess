@@ -111,6 +111,10 @@ body {
 #url_input {
   width: 30rem;
 }
+.game_img {
+  border-radius: 50%;
+  border: #000 1px solid;
+}
 /* mobile */
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */

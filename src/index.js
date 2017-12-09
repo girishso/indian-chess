@@ -36,28 +36,31 @@ if (gameId === null) {
     let welcomeApp = Welcome.embed(document.getElementById("root"), logoPath)
     welcomeApp.ports.createNewGame.subscribe(() => createNewGame(welcomeApp))
 } else {
-    let app = App.embed(document.getElementById("root"),
-      [`${window.location.origin}/?game_id=${gameId}`, "WhitePlayer"])
+    let app = App.embed(document.getElementById("root"), [
+        `${window.location.origin}/?game_id=${gameId}`,
+        "WhitePlayer",
+    ])
 
-    gamesRootRef.child(`${gameId}/nPlayers`).transaction(nPlayers => {
-      console.log("  >>> nPlayers: ", nPlayers)
+    gamesRootRef.child(`${gameId}/nPlayers`).transaction(
+        nPlayers => {
+            console.log("  >>> nPlayers: ", nPlayers)
 
-      let newNPlayers = (nPlayers || 0)
-      if(newNPlayers < 2)
-        return newNPlayers += 1
+            let newNPlayers = nPlayers || 0
+            if (newNPlayers < 2) return (newNPlayers += 1)
 
-      return
-    }, (e, commited, snapshot) => {
-      console.log(commited, snapshot.val())
-      if(commited && snapshot.val() == 2) app.ports.setThisPlayer.send("BlackPlayer")
-    }, false)
-
-
+            return
+        },
+        (e, commited, snapshot) => {
+            console.log(commited, snapshot.val())
+            if (commited && snapshot.val() == 2) app.ports.setThisPlayer.send("BlackPlayer")
+        },
+        false
+    )
 
     gamesRootRef.child(gameId).on("value", state => {
         const json = state.val()
-        console.log("  >> joined state: ", json)
-        if(json.nPlayers >= 2) {
+        // console.log("  >> joined state: ", json)
+        if (json.nPlayers >= 2) {
             app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${gameId}`)
         }
         if (typeof json.game_state !== "undefined" && json.game_state !== null) {
@@ -67,20 +70,17 @@ if (gameId === null) {
         }
     })
     app.ports.sendGameState.subscribe(str => {
-        let cmpd = compress(str)
-        gamesRootRef.child(gameId).update({ game_state: cmpd })
+        let compressed = compress(str)
+        gamesRootRef.child(gameId).update({ game_state: compressed })
     })
     app.ports.alert.subscribe(str => window.alert(str))
 
-    app.ports.copyUrl.subscribe( (el) => {
-        document.getElementById(el).select();
+    app.ports.copyUrl.subscribe(el => {
+        document.getElementById(el).select()
         try {
-          succeeded = document.execCommand("copy");
-        } catch (err) {};
-      });
+            succeeded = document.execCommand("copy")
+        } catch (err) {}
+    })
 
-    app.ports.focus.subscribe( (el) => {
-        document.getElementById(el).select();
-      });
-
+    app.ports.focus.subscribe(el => document.getElementById(el).select())
 }
