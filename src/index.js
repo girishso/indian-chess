@@ -29,32 +29,25 @@ if (gameId === null) {
     const createNewGame = app => {
         gamesRootRef.push({ other_player: "waiting" }).then(data => {
             console.log("  >> data: ", data.key)
-            // app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
             window.location.href = `/?game_id=${data.key}`
-
-            // data.on("value", state => {
-            //     // wait for other player to join and then open the game
-            //     const json = state.val()
-            //     console.log("  >> state: ", json)
-            //     if (json.other_player === "joined") {
-            //         window.location.href = `/?game_id=${data.key}`
-            //     }
-            // })
         })
     }
 
     let welcomeApp = Welcome.embed(document.getElementById("root"), logoPath)
     welcomeApp.ports.createNewGame.subscribe(() => createNewGame(welcomeApp))
 } else {
-    let app = App.embed(document.getElementById("root"), `${window.location.origin}/?game_id=${gameId}`)
+    let app = App.embed(document.getElementById("root"),
+      [`${window.location.origin}/?game_id=${gameId}`, "WhitePlayer"])
+
     gamesRootRef.child(`${gameId}/nPlayers`).transaction(nPlayers => {
-      console.log("nPlayers: ", nPlayers)
+      console.log("  >>> nPlayers: ", nPlayers)
       const newNPlayers = (nPlayers || 0) + 1
-      if(newNPlayers >= 2) {
-        app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${gameId}`)
-      }
+      if(newNPlayers>= 2) app.ports.setThisPlayer.send("BlackPlayer")
       return newNPlayers
-    })
+    }, () => console.log("transaction complete"), false)
+
+
+
     gamesRootRef.child(gameId).on("value", state => {
         const json = state.val()
         console.log("  >> joined state: ", json)
@@ -69,7 +62,7 @@ if (gameId === null) {
     })
     app.ports.sendGameState.subscribe(str => {
         let cmpd = compress(str)
-        gamesRootRef.child(gameId).set({ game_state: cmpd })
+        gamesRootRef.child(gameId).update({ game_state: cmpd })
     })
     app.ports.alert.subscribe(str => window.alert(str))
 }

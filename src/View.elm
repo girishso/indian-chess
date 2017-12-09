@@ -21,6 +21,8 @@ view model =
                             [ div [ class "is-size-5" ]
                                 [ text "Current player: "
                                 , model.gameState.currentPlayer |> toString |> dropRight 6 |> text
+                                , text "This player: "
+                                , model.thisPlayer |> toString |> dropRight 6 |> text
                                 ]
                             ]
                         ]

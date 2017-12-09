@@ -60,9 +60,6 @@ update msg model =
                             let
                                 _ =
                                     Debug.log "GameStateChanged err" error
-
-                                ( model, _ ) =
-                                    init ""
                             in
                                 model.gameState
               }
@@ -75,6 +72,9 @@ update msg model =
                     Debug.log "NewGameCreatedxxx" url
             in
                 ( { model | showGameUrl = False, gameUrl = url }, Cmd.none )
+
+        SetThisPlayer player ->
+            ( { model | thisPlayer = strToPlayer player }, Cmd.none )
 
 
 getPositionCellIfExists k f dict =
@@ -203,6 +203,7 @@ subscriptions model =
     Sub.batch
         [ gameStateChanged (GameStateChanged << Decode.decodeValue modelDecoder)
         , newSharedGameCreated NewGameCreated
+        , setThisPlayer SetThisPlayer
         ]
 
 
@@ -210,7 +211,7 @@ subscriptions model =
 ---- PROGRAM ----
 
 
-main : Program String Model Msg
+main : Program ( String, String ) Model Msg
 main =
     Html.programWithFlags
         { view = view

@@ -37,6 +37,7 @@ type alias Model =
     , gameId : Maybe String
     , showGameUrl : Bool
     , gameUrl : String
+    , thisPlayer : Player
     }
 
 
@@ -50,6 +51,7 @@ type Msg
     = OnCellClick Int Int Cell
     | GameStateChanged (Result String GameState)
     | NewGameCreated String
+    | SetThisPlayer String
 
 
 
@@ -80,8 +82,8 @@ blackCell =
     { emptyCell | pebble = Just Black }
 
 
-init : String -> ( Model, Cmd Msg )
-init gameId =
+init : ( String, String ) -> ( Model, Cmd Msg )
+init ( gameId, player ) =
     let
         middleRow =
             List.concat
@@ -117,35 +119,47 @@ init gameId =
                 else
                     True
           , gameUrl = ""
+          , thisPlayer = strToPlayer player
           }
         , Cmd.none
         )
 
 
+strToPlayer : String -> Player
+strToPlayer player =
+    if player == "WhitePlayer" then
+        WhitePlayer
+    else
+        BlackPlayer
+
+
 repeatDict : Int -> Int -> Int -> Cell -> List ( Position, Cell )
 repeatDict startX uptoX y cell =
     List.range startX uptoX
-        |> List.map (\i -> ( ( i, y ), cell ))
+        |> List.map (\x -> ( ( x, y ), cell ))
 
 
 isCurrentPlayersCell : Model -> Cell -> Bool
 isCurrentPlayersCell model cell =
-    case model.gameState.currentPlayer of
-        WhitePlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == White
+    if model.thisPlayer /= model.gameState.currentPlayer then
+        False
+    else
+        case model.gameState.currentPlayer of
+            WhitePlayer ->
+                case cell.pebble of
+                    Just pebble ->
+                        pebble == White
 
-                Nothing ->
-                    False
+                    Nothing ->
+                        False
 
-        BlackPlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == Black
+            BlackPlayer ->
+                case cell.pebble of
+                    Just pebble ->
+                        pebble == Black
 
-                Nothing ->
-                    False
+                    Nothing ->
+                        False
 
 
 
