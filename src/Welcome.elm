@@ -6,40 +6,24 @@ import Html.Events exposing (..)
 
 
 type alias Model =
-    { showGameUrl : Bool, gameUrl : String }
+    {}
 
 
 type Msg
     = NewSharedGame
-    | NewGameCreated String
-
-
-port newSharedGameCreated : (String -> msg) -> Sub msg
 
 
 port createNewGame : () -> Cmd msg
 
 
 init str =
-    ( Model False "", Cmd.none )
+    ( Model, Cmd.none )
 
 
 update msg model =
     case msg of
         NewSharedGame ->
             ( model, createNewGame () )
-
-        NewGameCreated url ->
-            let
-                _ =
-                    Debug.log "NewGameCreatedxxx" url
-            in
-                ( { model | showGameUrl = True, gameUrl = url }, Cmd.none )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    newSharedGameCreated NewGameCreated
 
 
 view model =
@@ -109,36 +93,7 @@ view model =
                     ]
                 ]
             ]
-        , gameUrlPopup model
         ]
-
-
-gameUrlPopup : Model -> Html Msg
-gameUrlPopup model =
-    if not model.showGameUrl then
-        Html.text ""
-    else
-        div [ class "modal is-active" ]
-            [ div [ class "modal-background" ]
-                []
-            , div [ class "modal-card" ]
-                [ header [ class "modal-card-head" ]
-                    [ p [ class "modal-card-title" ]
-                        [ text "Game url to share..." ]
-                    ]
-                , section [ class "modal-card-body" ]
-                    [ div [ class "content" ]
-                        [ a [ href model.gameUrl, target "_blank" ] [ text model.gameUrl ]
-                        ]
-                    ]
-                , footer [ class "modal-card-foot" ]
-                    [ div []
-                        [ text "Brought you by:"
-                        , a [ href "http://cuberoot.in", target "_blank" ] [ text " Cube Root Software" ]
-                        ]
-                    ]
-                ]
-            ]
 
 
 main : Program String Model Msg
@@ -147,5 +102,5 @@ main =
         { view = view
         , init = init
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }

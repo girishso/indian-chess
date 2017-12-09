@@ -12,7 +12,7 @@ const getParameterByName = (name_, url) => {
         results = regex.exec(url)
     if (!results) return null
     if (!results[2]) return ""
-    return decodeURIComponent(results[2].replace(/\+/g, " "))
+    return decodeURIComponent(results[2].replace(/\+/g, " ").trim())
 }
 
 const compress = str => LZString.compressToUTF16(str)
@@ -25,32 +25,42 @@ const gamesRootRef = firebase.database().ref("games/")
 const gameId = getParameterByName("game_id")
 console.log("gameId: ", gameId)
 
-if (gameId === null || gameId.trim() === "") {
+if (gameId === null) {
     const createNewGame = app => {
         gamesRootRef.push({ other_player: "waiting" }).then(data => {
             console.log("  >> data: ", data.key)
-            app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
+            // app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${data.key}`)
+            window.location.href = `/?game_id=${data.key}`
 
-            data.on("value", state => {
-                // wait for other player to join and then open the game
-                const json = state.val()
-                console.log("  >> state: ", json)
-                if (json.other_player === "joined") {
-                    window.location.href = `/?game_id=${data.key}`
-                }
-            })
+            // data.on("value", state => {
+            //     // wait for other player to join and then open the game
+            //     const json = state.val()
+            //     console.log("  >> state: ", json)
+            //     if (json.other_player === "joined") {
+            //         window.location.href = `/?game_id=${data.key}`
+            //     }
+            // })
         })
     }
 
     let welcomeApp = Welcome.embed(document.getElementById("root"), logoPath)
     welcomeApp.ports.createNewGame.subscribe(() => createNewGame(welcomeApp))
 } else {
-    let app = App.embed(document.getElementById("root"), logoPath)
-    gamesRootRef.child(gameId).set({ other_player: "joined" })
-    console.log("other player")
+    let app = App.embed(document.getElementById("root"), `${window.location.origin}/?game_id=${gameId}`)
+    gamesRootRef.child(`${gameId}/nPlayers`).transaction(nPlayers => {
+      console.log("nPlayers: ", nPlayers)
+      const newNPlayers = (nPlayers || 0) + 1
+      if(newNPlayers >= 2) {
+        app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${gameId}`)
+      }
+      return newNPlayers
+    })
     gamesRootRef.child(gameId).on("value", state => {
         const json = state.val()
-        // console.log("  >> joined state: ", json)
+        console.log("  >> joined state: ", json)
+        if(json.nPlayers >= 2) {
+            app.ports.newSharedGameCreated.send(`${window.location.origin}/?game_id=${gameId}`)
+        }
         if (typeof json.game_state !== "undefined" && json.game_state !== null) {
             let uncmpd = decompress(json.game_state)
             // console.log("  >> uncmpd: ", uncmpd)

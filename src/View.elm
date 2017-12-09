@@ -57,7 +57,36 @@ view model =
                     ]
                 ]
             ]
+        , gameUrlPopup model
         ]
+
+
+gameUrlPopup : Model -> Html Msg
+gameUrlPopup model =
+    if not model.showGameUrl then
+        Html.text ""
+    else
+        div [ class "modal is-active" ]
+            [ div [ class "modal-background" ]
+                []
+            , div [ class "modal-card" ]
+                [ header [ class "modal-card-head" ]
+                    [ p [ class "modal-card-title" ]
+                        [ text "Game url to share..." ]
+                    ]
+                , section [ class "modal-card-body" ]
+                    [ div [ class "content" ]
+                        [ a [ href model.gameUrl, target "_blank" ] [ text model.gameUrl ]
+                        ]
+                    ]
+                , footer [ class "modal-card-foot" ]
+                    [ div []
+                        [ text "Brought you by:"
+                        , a [ href "http://cuberoot.in", target "_blank" ] [ text " Cube Root Software" ]
+                        ]
+                    ]
+                ]
+            ]
 
 
 

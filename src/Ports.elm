@@ -10,3 +10,6 @@ port sendGameState : String -> Cmd msg
 
 
 port gameStateChanged : (Decode.Value -> msg) -> Sub msg
+
+
+port newSharedGameCreated : (String -> msg) -> Sub msg

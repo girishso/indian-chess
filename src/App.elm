@@ -69,6 +69,13 @@ update msg model =
             , Cmd.none
             )
 
+        NewGameCreated url ->
+            let
+                _ =
+                    Debug.log "NewGameCreatedxxx" url
+            in
+                ( { model | showGameUrl = False, gameUrl = url }, Cmd.none )
+
 
 getPositionCellIfExists k f dict =
     dict
@@ -193,7 +200,10 @@ isNeighbour i j x y =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    gameStateChanged (GameStateChanged << Decode.decodeValue modelDecoder)
+    Sub.batch
+        [ gameStateChanged (GameStateChanged << Decode.decodeValue modelDecoder)
+        , newSharedGameCreated NewGameCreated
+        ]
 
 
 

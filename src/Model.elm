@@ -34,6 +34,9 @@ type alias Position =
 
 type alias Model =
     { gameState : GameState
+    , gameId : Maybe String
+    , showGameUrl : Bool
+    , gameUrl : String
     }
 
 
@@ -46,6 +49,7 @@ type alias GameState =
 type Msg
     = OnCellClick Int Int Cell
     | GameStateChanged (Result String GameState)
+    | NewGameCreated String
 
 
 
@@ -77,7 +81,7 @@ blackCell =
 
 
 init : String -> ( Model, Cmd Msg )
-init path =
+init gameId =
     let
         middleRow =
             List.concat
@@ -100,6 +104,19 @@ init path =
                 { board = board
                 , currentPlayer = WhitePlayer
                 }
+          , gameId =
+                if String.isEmpty gameId then
+                    -- same device game
+                    Nothing
+                else
+                    Just gameId
+          , showGameUrl =
+                if String.isEmpty gameId then
+                    -- same device game
+                    False
+                else
+                    True
+          , gameUrl = ""
           }
         , Cmd.none
         )
