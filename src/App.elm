@@ -19,21 +19,23 @@ update msg model =
         OnCellClick x y currentCell ->
             let
                 ( newBoard, nextPlayer ) =
-                    if isCurrentPlayersCell model currentCell then
-                        -- select cell and calculate valid moves
-                        ( calculateValidMoves model x y currentCell, model.gameState.currentPlayer )
-                    else if
-                        isAnyPebbleSelected model
-                            && (currentCell.pebble == Nothing)
-                            && (currentCell.state == ValidMove)
-                            && (model.thisPlayer == model.gameState.currentPlayer)
-                    then
-                        -- move/delete pebble
-                        let
-                            ( ( i, j ), selectedCell ) =
-                                (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.gameState.board)
-                        in
-                            ( movePebble x y i j selectedCell currentCell model, togglePlayer model.gameState )
+                    if (model.thisPlayer == model.gameState.currentPlayer) then
+                        if isCurrentPlayersCell model currentCell then
+                            -- select cell and calculate valid moves
+                            ( calculateValidMoves model x y currentCell, model.gameState.currentPlayer )
+                        else if
+                            isAnyPebbleSelected model
+                                && (currentCell.pebble == Nothing)
+                                && (currentCell.state == ValidMove)
+                        then
+                            -- move/delete pebble
+                            let
+                                ( ( i, j ), selectedCell ) =
+                                    (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.gameState.board)
+                            in
+                                ( movePebble x y i j selectedCell currentCell model, togglePlayer model.gameState )
+                        else
+                            ( model.gameState.board, model.gameState.currentPlayer )
                     else
                         ( model.gameState.board, model.gameState.currentPlayer )
 
@@ -68,11 +70,7 @@ update msg model =
             )
 
         NewGameCreated url ->
-            let
-                _ =
-                    Debug.log "NewGameCreatedxxx" url
-            in
-                ( { model | showGameUrl = False, gameUrl = url }, Cmd.none )
+            ( { model | showGameUrl = False, gameUrl = url }, Cmd.none )
 
         SetThisPlayer player ->
             ( { model | thisPlayer = strToPlayer player }, Cmd.none )

@@ -141,25 +141,22 @@ repeatDict startX uptoX y cell =
 
 isCurrentPlayersCell : Model -> Cell -> Bool
 isCurrentPlayersCell model cell =
-    if model.thisPlayer /= model.gameState.currentPlayer then
-        False
-    else
-        case model.gameState.currentPlayer of
-            WhitePlayer ->
-                case cell.pebble of
-                    Just pebble ->
-                        pebble == White
+    case model.gameState.currentPlayer of
+        WhitePlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == White
 
-                    Nothing ->
-                        False
+                Nothing ->
+                    False
 
-            BlackPlayer ->
-                case cell.pebble of
-                    Just pebble ->
-                        pebble == Black
+        BlackPlayer ->
+            case cell.pebble of
+                Just pebble ->
+                    pebble == Black
 
-                    Nothing ->
-                        False
+                Nothing ->
+                    False
 
 
 
