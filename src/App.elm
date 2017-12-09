@@ -26,6 +26,7 @@ update msg model =
                         isAnyPebbleSelected model
                             && (currentCell.pebble == Nothing)
                             && (currentCell.state == ValidMove)
+                            && (model.thisPlayer == model.gameState.currentPlayer)
                     then
                         -- move/delete pebble
                         let

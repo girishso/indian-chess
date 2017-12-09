@@ -41,10 +41,16 @@ if (gameId === null) {
 
     gamesRootRef.child(`${gameId}/nPlayers`).transaction(nPlayers => {
       console.log("  >>> nPlayers: ", nPlayers)
-      const newNPlayers = (nPlayers || 0) + 1
-      if(newNPlayers>= 2) app.ports.setThisPlayer.send("BlackPlayer")
-      return newNPlayers
-    }, () => console.log("transaction complete"), false)
+
+      let newNPlayers = (nPlayers || 0)
+      if(newNPlayers < 2)
+        return newNPlayers += 1
+
+      return
+    }, (e, commited, snapshot) => {
+      console.log(commited, snapshot.val())
+      if(commited && snapshot.val() == 2) app.ports.setThisPlayer.send("BlackPlayer")
+    }, false)
 
 
 
