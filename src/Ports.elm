@@ -16,3 +16,9 @@ port newSharedGameCreated : (String -> msg) -> Sub msg
 
 
 port setThisPlayer : (String -> msg) -> Sub msg
+
+
+port copyUrl : String -> Cmd msg
+
+
+port focus : String -> Cmd msg

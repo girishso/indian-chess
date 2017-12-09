@@ -12,17 +12,17 @@ import Utils exposing (..)
 
 view : Model -> Html Msg
 view model =
-    section [ class "hero is-fullheight is-default is-bold" ]
+    section [ class "hero is-fullheight is-default is-bold main" ]
         [ div [ class "" ]
             [ div [ class "container has-text-centered" ]
                 [ div [ class "columns" ]
                     [ div [ class "column  is-12-mobile is-2-tablet is-2-desktop" ]
                         [ div [ class "" ]
                             [ div [ class "is-size-5" ]
-                                [ text "Current player: "
-                                , model.gameState.currentPlayer |> toString |> dropRight 6 |> text
-                                , text "This player: "
+                                [ text "You are: "
                                 , model.thisPlayer |> toString |> dropRight 6 |> text
+                                , div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+                                , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
                                 ]
                             ]
                         ]
@@ -78,7 +78,24 @@ gameUrlPopup model =
                     ]
                 , section [ class "modal-card-body" ]
                     [ div [ class "content" ]
-                        [ a [ href model.gameUrl, target "_blank" ] [ text model.gameUrl ]
+                        [ div [ class "field has-addons" ]
+                            [ p [ class "control" ]
+                                [ input
+                                    [ value model.gameUrl
+                                    , id "url_input"
+                                    , class "input"
+                                    , onClick SelectGameUrlInput
+                                    ]
+                                    []
+                                ]
+                            , p [ class "control" ]
+                                [ a
+                                    [ class "button  is-primary"
+                                    , onClick CopyUrl
+                                    ]
+                                    [ text "Copy" ]
+                                ]
+                            ]
                         ]
                     ]
                 , footer [ class "modal-card-foot" ]

@@ -75,6 +75,12 @@ update msg model =
         SetThisPlayer player ->
             ( { model | thisPlayer = strToPlayer player }, Cmd.none )
 
+        CopyUrl ->
+            ( model, copyUrl "url_input" )
+
+        SelectGameUrlInput ->
+            ( model, focus "url_input" )
+
 
 getPositionCellIfExists k f dict =
     dict

@@ -71,4 +71,16 @@ if (gameId === null) {
         gamesRootRef.child(gameId).update({ game_state: cmpd })
     })
     app.ports.alert.subscribe(str => window.alert(str))
+
+    app.ports.copyUrl.subscribe( (el) => {
+        document.getElementById(el).select();
+        try {
+          succeeded = document.execCommand("copy");
+        } catch (err) {};
+      });
+
+    app.ports.focus.subscribe( (el) => {
+        document.getElementById(el).select();
+      });
+
 }

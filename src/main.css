@@ -104,6 +104,13 @@ body {
   flex-grow: 1;
 }
 
+.main {
+  margin-top: 1rem;
+}
+
+#url_input {
+  width: 30rem;
+}
 /* mobile */
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
