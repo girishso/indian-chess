@@ -67,7 +67,15 @@ body {
   border-color: #666;
   border-style: dashed;
 }
-
+.lastmoved {
+  background-color: #b3f7cc!important;
+}
+.noKill {
+  background-color: #f77171;
+}
+.noKill.lastmoved {
+  background-color: #D5B49E!important;
+}
 .center {
     position: absolute;
     left: 0;
@@ -124,7 +132,7 @@ hr.space {
   .cell-container {
     width:  40px;
     height: 40px;
-    border-width: 1px;
+    border-width: 2px;
   }
 
   .pebble {
@@ -136,7 +144,7 @@ hr.space {
   .cell-container {
     width: 51px;
     height: 51px;
-    border-width: 2px;
+    border-width: 3px;
   }
 
   .pebble {
@@ -148,7 +156,7 @@ hr.space {
   .cell-container {
     width: 68px;
     height: 68px;
-    border-width: 3px;
+    border-width: 4px;
   }
 
   .pebble {

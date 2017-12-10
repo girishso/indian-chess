@@ -89,7 +89,8 @@ getPositionCellIfExists k f dict =
 calculateValidMoves : Model -> Int -> Int -> Cell -> Dict Position Cell
 calculateValidMoves model x y currentCell =
     model.gameState.board
-        |> Dict.map (\_ cell -> { cell | state = Normal })
+        |> Dict.map
+            (\_ cell -> { cell | state = Normal })
         |> updateIfExists ( x, y ) (\cell -> { cell | state = Selected })
         |> Dict.map
             -- valid moves in immediate neighbours
@@ -156,9 +157,15 @@ movePebble toI toJ fromX fromY fromCell toCell model =
                 model.gameState.board
     in
         newBoard
-            |> updateIfExists ( toI, toJ ) (\cell -> { toCell | pebble = fromCell.pebble })
-            |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Nothing })
-            |> Dict.map (\_ cell -> { cell | state = Normal })
+            |> updateIfExists ( toI, toJ ) (\cell -> { toCell | pebble = fromCell.pebble, state = LastMoved })
+            |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Nothing, state = LastMoved })
+            |> Dict.map
+                (\_ cell ->
+                    if cell.state == LastMoved then
+                        cell
+                    else
+                        { cell | state = Normal }
+                )
 
 
 killPebble : Int -> Int -> Model -> Dict Position Cell

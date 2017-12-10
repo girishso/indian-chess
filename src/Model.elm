@@ -14,6 +14,7 @@ type CellState
     = Normal
     | Selected
     | ValidMove
+    | LastMoved
 
 
 type alias Cell =
@@ -309,6 +310,9 @@ cellStateEncoder v =
         ValidMove ->
             Encode.string "ValidMove"
 
+        LastMoved ->
+            Encode.string "LastMoved"
+
 
 cellStateDecoder : Decode.Decoder CellState
 cellStateDecoder =
@@ -324,6 +328,9 @@ cellStateDecoder =
 
                     "ValidMove" ->
                         Decode.succeed ValidMove
+
+                    "LastMoved" ->
+                        Decode.succeed LastMoved
 
                     somethingElse ->
                         Decode.fail <| "Unknown state: " ++ somethingElse

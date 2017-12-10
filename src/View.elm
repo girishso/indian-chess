@@ -113,55 +113,6 @@ gameUrlPopup model =
             ]
 
 
-
--- howToPlayPopup : Html Msg
--- howToPlayPopup =
---     div [ class "modal is-active" ]
---         [ div [ class "modal-background", onClick ToggleHowToPlay ]
---             []
---         , div [ class "modal-card" ]
---             [ header [ class "modal-card-head" ]
---                 [ p [ class "modal-card-title" ]
---                     [ text "How to play" ]
---                 , button [ attribute "aria-label" "close", class "delete", onClick ToggleHowToPlay ]
---                     []
---                 ]
---             , section [ class "modal-card-body" ]
---                 [ div [ class "content" ]
---                     [ p [] [ text "The game is played by 2 players with 8 coins each. Objective is to kill all the opponents' coins." ]
---                     , h3 []
---                         [ text "Rules:"
---                         ]
---                     , ol []
---                         [ li [] [ text "Players take alternate turns. White player starts the game." ]
---                         , li [] [ text "Player can move her coin one place; left, right, up or down. Provided the place is empty." ]
---                         , li [] [ text "Opponents' coin can be killed by jumping over it. Only for killing moving two places is allowed." ]
---                         , li [] [ text "Red places are no kill zones." ]
---                         , li [] [ text "Player wins when all the opponents' coins are killed or when opponent has no valid moves left." ]
---                         ]
---                     , h3 [] [ text "About the game" ]
---                     , p []
---                         [ text "This game is also known as"
---                         , strong [] [ text " Chathurvimshathi Koshtaka" ]
---                         ]
---                     , p [] [ text "This is a game drawn from an old book written in Sanskrit by Harikrishna, son of Venkatram in the late nineteenth century. " ]
---                     , p [] [ text "Chathurvimshathi Koshtaka means 24 boxes or squares in Sanskrit. This is a battlefield game where two players with eight coins each literally battle it out to gain control of enemy territory." ]
---                     ]
---                 ]
---             , footer [ class "modal-card-foot" ]
---                 [ div []
---                     [ text "Brought you by:"
---                     , a [ href "http://cuberoot.in", target "_blank" ] [ text " Cube Root Software" ]
---                     ]
---                 , div [ class "ml2" ]
---                     [ button [ class "button  is-success ", onClick ToggleHowToPlay ]
---                         [ text "OK" ]
---                     ]
---                 ]
---             ]
---         ]
-
-
 currentPlayerIcon : Model -> Player -> Html msg
 currentPlayerIcon model player =
     div [ class "w30" ]
@@ -205,13 +156,15 @@ drawCell x y cell =
     div
         [ class "cell-container"
         , class (toString cell.state |> String.toLower)
+        , class
+            (if cell.noKill then
+                "noKill"
+             else
+                ""
+            )
         , onClick (OnCellClick x y cell)
         , Html.Attributes.style
-            [ if cell.noKill then
-                ( "background-color", "#f77171" )
-              else
-                ( "background-color", "#fff" )
-            , ( "display", "inline-block" )
+            [ ( "display", "inline-block" )
             ]
         ]
         [ Html.div
