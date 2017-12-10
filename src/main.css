@@ -115,6 +115,9 @@ body {
   border-radius: 50%;
   border: #000 1px solid;
 }
+hr.space {
+  background-color: #ffffff;
+}
 /* mobile */
 
 @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */
