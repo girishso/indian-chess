@@ -104,7 +104,7 @@ gameUrlPopup model =
                     ]
                 , footer [ class "modal-card-foot" ]
                     [ div []
-                        [ text "Brought you by:"
+                        [ text "Brought to you by:"
                         , a [ href "http://cuberoot.in", target "_blank" ] [ text " Cube Root Software" ]
                         ]
                     ]

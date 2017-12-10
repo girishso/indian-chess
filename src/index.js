@@ -25,11 +25,10 @@ firebase.initializeApp(firebase_config)
 const gamesRootRef = firebase.database().ref("games/")
 
 const gameId = getParameterByName("game_id")
-// console.log("gameId: ", gameId)
 
 if (gameId === null) {
     const createNewGame = app => {
-        gamesRootRef.push({ other_player: "waiting" }).then(data => {
+        gamesRootRef.push({ timestamp: Date.now() }).then(data => {
             // console.log("  >> data: ", data.key)
             window.location.href = `/?game_id=${data.key}`
         })
@@ -84,7 +83,7 @@ if (gameId === null) {
     })
     app.ports.sendGameState.subscribe(str => {
         let compressed = compress(str)
-        gamesRootRef.child(gameId).update({ game_state: compressed })
+        gamesRootRef.child(gameId).update({ game_state: compressed, timestamp: Date.now() })
     })
     app.ports.alert.subscribe(str => window.alert(str))
 
