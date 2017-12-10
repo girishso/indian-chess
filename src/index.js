@@ -41,6 +41,14 @@ if (gameId === null) {
         "WhitePlayer",
     ])
 
+    const storedPlayer = localStorage.getItem(gameId)
+
+    if(storedPlayer) {
+      app.ports.setThisPlayer.send(storedPlayer)
+    } else {
+      localStorage.setItem(gameId, "WhitePlayer")
+    }
+
     gamesRootRef.child(`${gameId}/nPlayers`).transaction(
         nPlayers => {
             console.log("  >>> nPlayers: ", nPlayers)
@@ -52,7 +60,10 @@ if (gameId === null) {
         },
         (e, commited, snapshot) => {
             console.log(commited, snapshot.val())
-            if (commited && snapshot.val() == 2) app.ports.setThisPlayer.send("BlackPlayer")
+            if (commited && snapshot.val() == 2) {
+              app.ports.setThisPlayer.send("BlackPlayer")
+              localStorage.setItem(gameId, "BlackPlayer")
+            }
         },
         false
     )
