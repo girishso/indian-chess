@@ -1,6 +1,5 @@
 module View exposing (view)
 
-import Array
 import Dict exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -203,5 +202,5 @@ drawPebble pebble =
 isWin : Model -> Bool
 isWin model =
     model.gameState.board
-        |> filterValues (isCurrentPlayersCell model)
+        |> filterValues (isCurrentPlayersCell model.gameState)
         |> Dict.isEmpty

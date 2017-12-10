@@ -1,10 +1,8 @@
 module App exposing (..)
 
-import Array
 import Dict exposing (..)
 import Dict.Extra exposing (find)
 import Html exposing (programWithFlags)
-import Html.Attributes exposing (value)
 import Json.Decode as Decode exposing (field)
 import Json.Encode as Encode exposing (..)
 import Model exposing (..)
@@ -18,38 +16,35 @@ update msg model =
     case msg of
         OnCellClick x y currentCell ->
             let
+                gameState =
+                    model.gameState
+
                 ( newBoard, nextPlayer ) =
-                    if (model.thisPlayer == model.gameState.currentPlayer) then
-                        if isCurrentPlayersCell model currentCell then
+                    if (model.thisPlayer == gameState.currentPlayer) then
+                        if isCurrentPlayersCell gameState currentCell then
                             -- select cell and calculate valid moves
-                            ( calculateValidMoves model x y currentCell, model.gameState.currentPlayer )
+                            ( calculateValidMoves gameState x y currentCell, gameState.currentPlayer )
                         else if
-                            isAnyPebbleSelected model
+                            isAnyPebbleSelected gameState
                                 && (currentCell.pebble == Nothing)
                                 && (currentCell.state == ValidMove)
                         then
                             -- move/delete pebble
                             let
                                 ( ( i, j ), selectedCell ) =
-                                    (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) model.gameState.board)
+                                    (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) gameState.board)
                             in
-                                ( movePebble x y i j selectedCell currentCell model, togglePlayer model.gameState )
+                                ( movePebble x y i j selectedCell currentCell gameState, togglePlayer gameState )
                         else
-                            ( model.gameState.board, model.gameState.currentPlayer )
+                            ( gameState.board, gameState.currentPlayer )
                     else
-                        ( model.gameState.board, model.gameState.currentPlayer )
-
-                gameState =
-                    model.gameState
+                        ( gameState.board, gameState.currentPlayer )
 
                 newGameState =
                     { gameState | board = newBoard, currentPlayer = nextPlayer }
-
-                newModel =
-                    { model | gameState = newGameState }
             in
-                ( newModel
-                , Encode.encode 1 (modelEncoder newGameState) |> sendGameState
+                ( { model | gameState = newGameState }
+                , Encode.encode 1 (gameStateEncoder newGameState) |> sendGameState
                 )
 
         GameStateChanged json ->
@@ -79,16 +74,9 @@ update msg model =
             ( model, focus "url_input" )
 
 
-getPositionCellIfExists k f dict =
-    dict
-        |> Dict.Extra.find f
-        |> Maybe.withDefault
-            ( ( -1, -1 ), emptyCell )
-
-
-calculateValidMoves : Model -> Int -> Int -> Cell -> Dict Position Cell
-calculateValidMoves model x y currentCell =
-    model.gameState.board
+calculateValidMoves : GameState -> Int -> Int -> Cell -> Dict Position Cell
+calculateValidMoves gameState x y currentCell =
+    gameState.board
         |> Dict.map
             (\_ cell -> { cell | state = Normal })
         |> updateIfExists ( x, y ) (\cell -> { cell | state = Selected })
@@ -107,10 +95,10 @@ calculateValidMoves model x y currentCell =
                     -- kill position empty?
                     if
                         -- is neighbour enemy and not in noKill cell?
-                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) model.gameState.board) model.gameState.currentPlayer)
-                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) model.gameState.board) model.gameState.currentPlayer)
-                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) model.gameState.board) model.gameState.currentPlayer)
-                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) model.gameState.board) model.gameState.currentPlayer)
+                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) gameState.board) gameState.currentPlayer)
+                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) gameState.board) gameState.currentPlayer)
+                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) gameState.board) gameState.currentPlayer)
+                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) gameState.board) gameState.currentPlayer)
                     then
                         { cell | state = ValidMove }
                     else
@@ -145,19 +133,19 @@ togglePlayer model =
         WhitePlayer
 
 
-movePebble : Int -> Int -> Int -> Int -> Cell -> Cell -> Model -> Dict Position Cell
-movePebble toI toJ fromX fromY fromCell toCell model =
+movePebble : Int -> Int -> Int -> Int -> Cell -> Cell -> GameState -> Dict Position Cell
+movePebble toX toY fromX fromY fromCell toCell gameState =
     let
         newBoard =
-            if abs (fromX - toI) == 2 then
-                killPebble ((fromX + toI) // 2) fromY model
-            else if abs (fromY - toJ) == 2 then
-                killPebble fromX ((fromY + toJ) // 2) model
+            if abs (fromX - toX) == 2 then
+                killPebble ((fromX + toX) // 2) fromY gameState
+            else if abs (fromY - toY) == 2 then
+                killPebble fromX ((fromY + toY) // 2) gameState
             else
-                model.gameState.board
+                gameState.board
     in
         newBoard
-            |> updateIfExists ( toI, toJ ) (\cell -> { toCell | pebble = fromCell.pebble, state = LastMoved })
+            |> updateIfExists ( toX, toY ) (\cell -> { toCell | pebble = fromCell.pebble, state = LastMoved })
             |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Nothing, state = LastMoved })
             |> Dict.map
                 (\_ cell ->
@@ -168,25 +156,22 @@ movePebble toI toJ fromX fromY fromCell toCell model =
                 )
 
 
-killPebble : Int -> Int -> Model -> Dict Position Cell
-killPebble x y model =
-    let
-        cell =
-            Dict.get ( x, y ) model.gameState.board
-    in
-        case cell of
-            Just cell ->
-                if cell.noKill then
-                    model.gameState.board
-                else
-                    updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) model.gameState.board
+killPebble : Int -> Int -> GameState -> Dict Position Cell
+killPebble x y gameState =
+    case Dict.get ( x, y ) gameState.board of
+        Just cell ->
+            if cell.noKill then
+                gameState.board
+            else
+                updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) gameState.board
 
-            Nothing ->
-                model.gameState.board
+        Nothing ->
+            gameState.board
 
 
-isAnyPebbleSelected model =
-    model.gameState.board
+isAnyPebbleSelected : GameState -> Bool
+isAnyPebbleSelected gameState =
+    gameState.board
         |> filterValues (\c -> c.state == Selected)
         |> Dict.isEmpty
         |> not
@@ -203,6 +188,13 @@ isNeighbour i j x y =
         || (i == x && j == y + 1)
 
 
+getPositionCellIfExists k f dict =
+    dict
+        |> Dict.Extra.find f
+        |> Maybe.withDefault
+            ( ( -1, -1 ), emptyCell )
+
+
 
 -- subscriptions
 
@@ -210,7 +202,7 @@ isNeighbour i j x y =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ gameStateChanged (GameStateChanged << Decode.decodeValue modelDecoder)
+        [ gameStateChanged (GameStateChanged << Decode.decodeValue gameStateDecoder)
         , newSharedGameCreated NewGameCreated
         , setThisPlayer SetThisPlayer
         ]

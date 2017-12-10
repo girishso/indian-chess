@@ -25,12 +25,12 @@ firebase.initializeApp(firebase_config)
 const gamesRootRef = firebase.database().ref("games/")
 
 const gameId = getParameterByName("game_id")
-console.log("gameId: ", gameId)
+// console.log("gameId: ", gameId)
 
 if (gameId === null) {
     const createNewGame = app => {
         gamesRootRef.push({ other_player: "waiting" }).then(data => {
-            console.log("  >> data: ", data.key)
+            // console.log("  >> data: ", data.key)
             window.location.href = `/?game_id=${data.key}`
         })
     }
@@ -53,7 +53,7 @@ if (gameId === null) {
 
     gamesRootRef.child(`${gameId}/nPlayers`).transaction(
         nPlayers => {
-            console.log("  >>> nPlayers: ", nPlayers)
+            // console.log("  >>> nPlayers: ", nPlayers)
 
             let newNPlayers = nPlayers || 0
             if (newNPlayers < 2) return (newNPlayers += 1)
@@ -61,7 +61,7 @@ if (gameId === null) {
             return
         },
         (e, commited, snapshot) => {
-            console.log(commited, snapshot.val())
+            // console.log(commited, snapshot.val())
             if (commited && snapshot.val() == 2) {
                 app.ports.setThisPlayer.send("BlackPlayer")
                 localStorage.setItem(gameId, "BlackPlayer")

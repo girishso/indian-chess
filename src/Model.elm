@@ -134,9 +134,9 @@ repeatDict startX uptoX y cell =
         |> List.map (\x -> ( ( x, y ), cell ))
 
 
-isCurrentPlayersCell : Model -> Cell -> Bool
-isCurrentPlayersCell model cell =
-    case model.gameState.currentPlayer of
+isCurrentPlayersCell : GameState -> Cell -> Bool
+isCurrentPlayersCell gameState cell =
+    case gameState.currentPlayer of
         WhitePlayer ->
             case cell.pebble of
                 Just pebble ->
@@ -158,15 +158,15 @@ isCurrentPlayersCell model cell =
 -- Encoders and Decoders
 
 
-modelDecoder : Decode.Decoder GameState
-modelDecoder =
+gameStateDecoder : Decode.Decoder GameState
+gameStateDecoder =
     Decode.map2 GameState
         (field "board" boardDecoder)
         (field "currentPlayer" playerDecoder)
 
 
-modelEncoder : GameState -> Encode.Value
-modelEncoder v =
+gameStateEncoder : GameState -> Encode.Value
+gameStateEncoder v =
     Encode.object
         [ ( "board", boardEncoder v.board )
         , ( "currentPlayer", playerEncoder v.currentPlayer )
