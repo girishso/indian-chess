@@ -73,7 +73,7 @@ update msg model =
             ( { model | showGameUrl = False, gameUrl = url }, Cmd.none )
 
         SetThisPlayer player ->
-            ( { model | thisPlayer = strToPlayer player }, Cmd.none )
+            ( { model | thisPlayer = strToPlayer player, showGameUrl = False }, Cmd.none )
 
         CopyUrl ->
             ( model, copyUrl "url_input" )
