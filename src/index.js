@@ -15,6 +15,8 @@ const getParameterByName = (name_, url) => {
     return decodeURIComponent(results[2].replace(/\+/g, " ").trim())
 }
 
+new Clipboard("#copy_url_btn")
+
 const compress = str => LZString.compressToUTF16(str)
 const decompress = str => LZString.decompressFromUTF16(str)
 
@@ -43,10 +45,10 @@ if (gameId === null) {
 
     const storedPlayer = localStorage.getItem(gameId)
 
-    if(storedPlayer) {
-      app.ports.setThisPlayer.send(storedPlayer)
+    if (storedPlayer) {
+        app.ports.setThisPlayer.send(storedPlayer)
     } else {
-      localStorage.setItem(gameId, "WhitePlayer")
+        localStorage.setItem(gameId, "WhitePlayer")
     }
 
     gamesRootRef.child(`${gameId}/nPlayers`).transaction(
@@ -61,8 +63,8 @@ if (gameId === null) {
         (e, commited, snapshot) => {
             console.log(commited, snapshot.val())
             if (commited && snapshot.val() == 2) {
-              app.ports.setThisPlayer.send("BlackPlayer")
-              localStorage.setItem(gameId, "BlackPlayer")
+                app.ports.setThisPlayer.send("BlackPlayer")
+                localStorage.setItem(gameId, "BlackPlayer")
             }
         },
         false

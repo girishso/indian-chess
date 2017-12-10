@@ -74,7 +74,7 @@ gameUrlPopup model =
             , div [ class "modal-card" ]
                 [ header [ class "modal-card-head" ]
                     [ p [ class "modal-card-title" ]
-                        [ text "Game url to share..." ]
+                        [ text "Share this URL with your opponent:" ]
                     ]
                 , section [ class "modal-card-body" ]
                     [ div [ class "content" ]
@@ -90,10 +90,15 @@ gameUrlPopup model =
                                 ]
                             , p [ class "control" ]
                                 [ a
-                                    [ class "button  is-primary"
-                                    , onClick CopyUrl
+                                    [ class "button is-light"
+                                    , id "copy_url_btn"
+                                    , attribute "data-clipboard-target" "#url_input"
                                     ]
-                                    [ text "Copy" ]
+                                    [ span [ class "icon is-small" ]
+                                        [ i [ class "fa fa-clipboard" ] []
+                                        ]
+                                    , span [] [ text "Copy" ]
+                                    ]
                                 ]
                             ]
                         ]

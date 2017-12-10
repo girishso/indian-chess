@@ -75,9 +75,6 @@ update msg model =
         SetThisPlayer player ->
             ( { model | thisPlayer = strToPlayer player, showGameUrl = False }, Cmd.none )
 
-        CopyUrl ->
-            ( model, copyUrl "url_input" )
-
         SelectGameUrlInput ->
             ( model, focus "url_input" )
 

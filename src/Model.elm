@@ -51,7 +51,6 @@ type Msg
     | GameStateChanged (Result String GameState)
     | NewGameCreated String
     | SetThisPlayer String
-    | CopyUrl
     | SelectGameUrlInput
 
 
