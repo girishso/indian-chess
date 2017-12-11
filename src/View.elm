@@ -12,52 +12,34 @@ import Utils exposing (..)
 view : Model -> Html Msg
 view model =
     section [ class "hero is-fullheight is-default is-bold main" ]
-        [ div [ class "" ]
-            [ div [ class "container has-text-centered" ]
-                [ div [ class "columns" ]
-                    [ div [ class "column  is-12-mobile is-2-tablet is-2-desktop" ]
-                        [ div [ class "" ]
-                            [ div [ class "is-size-5" ]
-                                [ text "You are: "
-                                , model.thisPlayer |> toString |> dropRight 6 |> text
-                                , div [ class "column", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
-                                , div [ class "column", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
-                                ]
-                            ]
+        [ div [ class "container has-text-centered" ]
+            [ div [ id "status-wrapper" ]
+                [ ul [ class "is-size-5", id "status-bar" ]
+                    [ li [ class "you-are" ]
+                        [ text "You are: "
+                        , model.thisPlayer |> toString |> dropRight 6 |> text
                         ]
-                    , div [ class "column" ]
-                        [ div []
-                            [ model.gameState.board |> drawBoard ]
-                        , if isWin model then
-                            h3 [ class "winner is-size-3" ]
-                                [ (case model.gameState.currentPlayer of
-                                    WhitePlayer ->
-                                        "Black is the Winner!"
-
-                                    BlackPlayer ->
-                                        "White is the Winner!"
-                                  )
-                                    |> text
-                                ]
-                          else
-                            Html.text ""
-                        ]
+                    , li [ class "", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
+                    , li [ class "", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]
                     ]
                 ]
+            , div []
+                [ model.gameState.board |> drawBoard ]
+            , if isWin model then
+                h3 [ class "winner is-size-3" ]
+                    [ (case model.gameState.currentPlayer of
+                        WhitePlayer ->
+                            "Black is the Winner!"
+
+                        BlackPlayer ->
+                            "White is the Winner!"
+                      )
+                        |> text
+                    ]
+              else
+                Html.text ""
             ]
         , div [ class "h100" ] []
-        , div [ class "hero-foot" ]
-            [ div [ class "container" ]
-                [ div [ class "tabs is-centered" ]
-                    [ ul []
-                        [ li []
-                            [ a [ href "http://cuberoot.in", target "_blank" ]
-                                [ text " Cube Root Software" ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
         , gameUrlPopup model
         ]
 

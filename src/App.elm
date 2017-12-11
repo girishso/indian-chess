@@ -9,6 +9,7 @@ import Model exposing (..)
 import Ports exposing (..)
 import Utils exposing (..)
 import View exposing (view)
+import Window exposing (height, width)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,6 +74,13 @@ update msg model =
         SelectGameUrlInput ->
             ( model, focus "url_input" )
 
+        ScreenSize { width, height } ->
+            let
+                _ =
+                    Debug.log "ScreenSize: " ( width, height )
+            in
+                { model | screen = ( width, height ) } ! []
+
 
 calculateValidMoves : GameState -> Int -> Int -> Cell -> Dict Position Cell
 calculateValidMoves gameState x y currentCell =
@@ -91,21 +99,20 @@ calculateValidMoves gameState x y currentCell =
         |> Dict.map
             -- possible kill positions
             (\( i, j ) cell ->
-                if (cell.pebble == Nothing) then
-                    -- kill position empty?
-                    if
-                        -- is neighbour enemy and not in noKill cell?
-                        ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) gameState.board) gameState.currentPlayer)
-                            || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) gameState.board) gameState.currentPlayer)
-                            || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) gameState.board) gameState.currentPlayer)
-                            || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) gameState.board) gameState.currentPlayer)
-                    then
-                        { cell | state = ValidMove }
-                    else
-                        cell
+                if (cell.pebble == Nothing) && isNeighbourEnemyAndKillable i j x y gameState then
+                    -- kill position empty? And is neighbour enemy and not in noKill cell?
+                    { cell | state = ValidMove }
                 else
                     cell
             )
+
+
+isNeighbourEnemyAndKillable : Int -> Int -> Int -> Int -> GameState -> Bool
+isNeighbourEnemyAndKillable i j x y gameState =
+    ((i == x && j == y - 2) && isEnemyIsKillable (Dict.get ( x, (y - 1) ) gameState.board) gameState.currentPlayer)
+        || ((i == x && j == y + 2) && isEnemyIsKillable (Dict.get ( x, (y + 1) ) gameState.board) gameState.currentPlayer)
+        || ((i == x - 2 && j == y) && isEnemyIsKillable (Dict.get ( (x - 1), y ) gameState.board) gameState.currentPlayer)
+        || ((i == x + 2 && j == y) && isEnemyIsKillable (Dict.get ( (x + 1), y ) gameState.board) gameState.currentPlayer)
 
 
 isEnemyIsKillable : Maybe Cell -> Player -> Bool
@@ -123,7 +130,7 @@ isEnemyIsKillable cell currentPlayer =
                         BlackPlayer ->
                             c.pebble |> Maybe.map (\pebble -> pebble == White) |> Maybe.withDefault False
             )
-        |> (Maybe.withDefault False)
+        |> Maybe.withDefault False
 
 
 togglePlayer model =
@@ -203,6 +210,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ gameStateChanged (GameStateChanged << Decode.decodeValue gameStateDecoder)
+        , Window.resizes ScreenSize
         , newSharedGameCreated NewGameCreated
         , setThisPlayer SetThisPlayer
         ]

@@ -3,6 +3,8 @@ module Model exposing (..)
 import Dict exposing (..)
 import Json.Decode as Decode exposing (field)
 import Json.Encode as Encode exposing (..)
+import Window
+import Task
 
 
 type Pebble
@@ -38,6 +40,7 @@ type alias Model =
     , showGameUrl : Bool
     , gameUrl : String
     , thisPlayer : Player
+    , screen : ( Int, Int )
     }
 
 
@@ -53,6 +56,7 @@ type Msg
     | NewGameCreated String
     | SetThisPlayer String
     | SelectGameUrlInput
+    | ScreenSize Window.Size
 
 
 
@@ -115,9 +119,15 @@ init ( gameUrl, player ) =
                     True
           , gameUrl = gameUrl
           , thisPlayer = strToPlayer player
+          , screen = ( 800, 600 )
           }
-        , Cmd.none
+        , getScreenSize
         )
+
+
+getScreenSize : Cmd Msg
+getScreenSize =
+    Task.perform ScreenSize (Window.size)
 
 
 strToPlayer : String -> Player
