@@ -41,7 +41,7 @@ view model =
                         [ h1 [ class "title is-2" ]
                             [ text "Indian Chess" ]
                         , h2 [ class "subtitle is-4" ]
-                            [ text "Chathurvimshathi Koshtaka" ]
+                            [ text "" ]
                         , p [] [ text "This is a battlefield game where two players with eight coins each literally battle it out to gain control of enemy territory." ]
                         , br []
                             []
