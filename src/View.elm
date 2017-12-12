@@ -150,12 +150,7 @@ drawCell x y cell =
         ]
         [ Html.div
             []
-            [ case cell.pebble of
-                Just pebble ->
-                    drawPebble pebble
-
-                Nothing ->
-                    Html.text ""
+            [ drawPebble cell.pebble
 
             -- , div [ class "debug-pos" ]
             --     [ text <|
@@ -179,6 +174,9 @@ drawPebble pebble =
 
         White ->
             div [ class "pebble center" ] [ i [ class "fa fa-circle-o fa-2x" ] [] ]
+
+        Zilch ->
+            Html.text ""
 
 
 isWin : Model -> Bool

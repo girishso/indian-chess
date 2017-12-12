@@ -27,7 +27,7 @@ update msg model =
                             ( calculateValidMoves gameState x y currentCell, gameState.currentPlayer )
                         else if
                             isAnyPebbleSelected gameState
-                                && (currentCell.pebble == Nothing)
+                                && (currentCell.pebble == Zilch)
                                 && (currentCell.state == ValidMove)
                         then
                             -- move/delete pebble
@@ -91,7 +91,7 @@ calculateValidMoves gameState x y currentCell =
         |> Dict.map
             -- valid moves in immediate neighbours
             (\( i, j ) cell ->
-                if isNeighbour i j x y && cell.pebble == Nothing then
+                if isNeighbour i j x y && cell.pebble == Zilch then
                     { cell | state = ValidMove }
                 else
                     cell
@@ -99,7 +99,7 @@ calculateValidMoves gameState x y currentCell =
         |> Dict.map
             -- possible kill positions
             (\( i, j ) cell ->
-                if (cell.pebble == Nothing) && isNeighbourEnemyAndKillable i j x y gameState then
+                if (cell.pebble == Zilch) && isNeighbourEnemyAndKillable i j x y gameState then
                     -- kill position empty? And is neighbour enemy and not in noKill cell?
                     { cell | state = ValidMove }
                 else
@@ -125,10 +125,10 @@ isEnemyIsKillable cell currentPlayer =
                 else
                     case currentPlayer of
                         WhitePlayer ->
-                            c.pebble |> Maybe.map (\pebble -> pebble == Black) |> Maybe.withDefault False
+                            c.pebble == Black
 
                         BlackPlayer ->
-                            c.pebble |> Maybe.map (\pebble -> pebble == White) |> Maybe.withDefault False
+                            c.pebble == White
             )
         |> Maybe.withDefault False
 
@@ -153,7 +153,7 @@ movePebble toX toY fromX fromY fromCell toCell gameState =
     in
         newBoard
             |> updateIfExists ( toX, toY ) (\cell -> { toCell | pebble = fromCell.pebble, state = LastMoved })
-            |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Nothing, state = LastMoved })
+            |> updateIfExists ( fromX, fromY ) (\cell -> { fromCell | pebble = Zilch, state = LastMoved })
             |> Dict.map
                 (\_ cell ->
                     if cell.state == LastMoved then
@@ -170,7 +170,7 @@ killPebble x y gameState =
             if cell.noKill then
                 gameState.board
             else
-                updateIfExists ( x, y ) (\cell -> { cell | pebble = Nothing }) gameState.board
+                updateIfExists ( x, y ) (\cell -> { cell | pebble = Zilch }) gameState.board
 
         Nothing ->
             gameState.board

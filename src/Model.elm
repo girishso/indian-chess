@@ -23,7 +23,7 @@ type alias GameState =
 
 
 type alias Cell =
-    { pebble : Maybe Pebble
+    { pebble : Pebble
     , noKill : Bool
     , state : CellState
     }
@@ -32,6 +32,7 @@ type alias Cell =
 type Pebble
     = Black
     | White
+    | Zilch
 
 
 type CellState
@@ -107,7 +108,7 @@ init ( gameUrl, player ) =
 
 emptyCell : Cell
 emptyCell =
-    { pebble = Nothing, noKill = False, state = Normal }
+    { pebble = Zilch, noKill = False, state = Normal }
 
 
 noKillEmptyCell : Cell
@@ -117,12 +118,12 @@ noKillEmptyCell =
 
 whiteCell : Cell
 whiteCell =
-    { emptyCell | pebble = Just White }
+    { emptyCell | pebble = White }
 
 
 blackCell : Cell
 blackCell =
-    { emptyCell | pebble = Just Black }
+    { emptyCell | pebble = Black }
 
 
 getScreenSize : Cmd Msg
@@ -148,20 +149,10 @@ isCurrentPlayersCell : GameState -> Cell -> Bool
 isCurrentPlayersCell gameState cell =
     case gameState.currentPlayer of
         WhitePlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == White
-
-                Nothing ->
-                    False
+            cell.pebble == White
 
         BlackPlayer ->
-            case cell.pebble of
-                Just pebble ->
-                    pebble == Black
-
-                Nothing ->
-                    False
+            cell.pebble == Black
 
 
 
@@ -262,7 +253,7 @@ positionEncoder ( x, y ) =
 cellDecoder : Decode.Decoder Cell
 cellDecoder =
     Decode.map3 Cell
-        (Decode.maybe <| field "pebble" pebbleDecoder)
+        (field "pebble" pebbleDecoder)
         (field "noKill" Decode.bool)
         (field "state" cellStateDecoder)
 
@@ -276,19 +267,17 @@ cellEncoder cell =
         ]
 
 
-pebbleEncoder : Maybe Pebble -> Encode.Value
-pebbleEncoder v =
-    case v of
-        Just pebble ->
-            case pebble of
-                Black ->
-                    Encode.string "Black"
+pebbleEncoder : Pebble -> Encode.Value
+pebbleEncoder pebble =
+    case pebble of
+        Black ->
+            Encode.string "Black"
 
-                White ->
-                    Encode.string "White"
+        White ->
+            Encode.string "White"
 
-        Nothing ->
-            Encode.null
+        Zilch ->
+            Encode.string "Zilch"
 
 
 pebbleDecoder : Decode.Decoder Pebble
@@ -302,6 +291,9 @@ pebbleDecoder =
 
                     "Black" ->
                         Decode.succeed Black
+
+                    "Zilch" ->
+                        Decode.succeed Zilch
 
                     somethingElse ->
                         Decode.fail <| "Unknown pebble: " ++ somethingElse
