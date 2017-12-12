@@ -7,34 +7,6 @@ import Window
 import Task
 
 
-type Pebble
-    = Black
-    | White
-
-
-type CellState
-    = Normal
-    | Selected
-    | ValidMove
-    | LastMoved
-
-
-type alias Cell =
-    { pebble : Maybe Pebble
-    , noKill : Bool
-    , state : CellState
-    }
-
-
-type Player
-    = WhitePlayer
-    | BlackPlayer
-
-
-type alias Position =
-    ( Int, Int )
-
-
 type alias Model =
     { gameState : GameState
     , showGameUrl : Bool
@@ -50,13 +22,32 @@ type alias GameState =
     }
 
 
-type Msg
-    = OnCellClick Int Int Cell
-    | GameStateChanged (Result String GameState)
-    | NewGameCreated String
-    | SetThisPlayer String
-    | SelectGameUrlInput
-    | ScreenSize Window.Size
+type alias Cell =
+    { pebble : Maybe Pebble
+    , noKill : Bool
+    , state : CellState
+    }
+
+
+type Pebble
+    = Black
+    | White
+
+
+type CellState
+    = Normal
+    | Selected
+    | ValidMove
+    | LastMoved
+
+
+type Player
+    = WhitePlayer
+    | BlackPlayer
+
+
+type alias Position =
+    ( Int, Int )
 
 
 
@@ -67,24 +58,13 @@ type alias CellWrapper =
     { pos : Position, cell : Cell }
 
 
-emptyCell : Cell
-emptyCell =
-    { pebble = Nothing, noKill = False, state = Normal }
-
-
-noKillEmptyCell : Cell
-noKillEmptyCell =
-    { emptyCell | noKill = True }
-
-
-whiteCell : Cell
-whiteCell =
-    { emptyCell | pebble = Just White }
-
-
-blackCell : Cell
-blackCell =
-    { emptyCell | pebble = Just Black }
+type Msg
+    = OnCellClick Int Int Cell
+    | GameStateChanged (Result String GameState)
+    | NewGameCreated String
+    | SetThisPlayer String
+    | SelectGameUrlInput
+    | ScreenSize Window.Size
 
 
 init : ( String, String ) -> ( Model, Cmd Msg )
@@ -123,6 +103,26 @@ init ( gameUrl, player ) =
           }
         , getScreenSize
         )
+
+
+emptyCell : Cell
+emptyCell =
+    { pebble = Nothing, noKill = False, state = Normal }
+
+
+noKillEmptyCell : Cell
+noKillEmptyCell =
+    { emptyCell | noKill = True }
+
+
+whiteCell : Cell
+whiteCell =
+    { emptyCell | pebble = Just White }
+
+
+blackCell : Cell
+blackCell =
+    { emptyCell | pebble = Just Black }
 
 
 getScreenSize : Cmd Msg
