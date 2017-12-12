@@ -69,7 +69,7 @@ view model =
                     , ol []
                         [ li [] [ text "Players take alternate turns. White player starts the game." ]
                         , li [] [ text "Player can move her coin one place; left, right, up or down. Provided the place is empty." ]
-                        , li [] [ text "Opponents' coin can be killed by jumping over it. Only for killing moving two places is allowed." ]
+                        , li [] [ text "Opponents' coin can be killed by jumping over it. Moving two places is allowed only for killing." ]
                         , li [] [ text "Red places are no kill zones." ]
                         , li [] [ text "Player wins when all the opponents' coins are killed or when opponent has no valid moves left." ]
                         ]

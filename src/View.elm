@@ -17,7 +17,7 @@ view model =
                 [ ul [ class "is-size-5", id "status-bar" ]
                     [ li [ class "you-are" ]
                         [ text "You are: "
-                        , model.thisPlayer |> toString |> dropRight 6 |> text
+                        , strong [] [ model.thisPlayer |> toString |> dropRight 6 |> text ]
                         ]
                     , li [ class "", classIfCurrentPlayer model WhitePlayer "tdu" ] [ currentPlayerIcon model WhitePlayer, text " White player" ]
                     , li [ class "", classIfCurrentPlayer model BlackPlayer "tdu" ] [ currentPlayerIcon model BlackPlayer, text " Black player" ]

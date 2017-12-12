@@ -35,7 +35,9 @@ body {
 }
 
 .w30 {
-    width: 30px;
+    width: 10px;
+    margin-left: 10px;
+    margin-right: 0px;
     display: inline-block;
     color: #ec6f6f;
 }
@@ -125,17 +127,17 @@ hr.space {
     background-color: #ffffff;
 }
 ul#status-bar li {
-  /*display:inline-block;*/
+    /*display:inline-block;*/
 }
 ul#status-bar {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 #status-wrapper {
-  margin: 1rem 0;
+    margin: 1rem 0;
 }
 .you-are {
-  margin-right: 2rem;
+    margin-right: 2rem;
 }
 /* mobile */
 
@@ -171,7 +173,6 @@ ul#status-bar {
         width: 68px;
         height: 68px;
         border-width: 4px;
-
     }
 
     .pebble {
@@ -183,10 +184,8 @@ ul#status-bar {
     }
 }
 @media (max-width: 771px) {
-  .cell-container {
-
-  }
-
+    .cell-container {
+    }
 }
 @media (min-width: 961px) {
     /* tablet, landscape iPad, lo-res laptops ands desktops */
