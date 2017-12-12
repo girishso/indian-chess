@@ -33,7 +33,7 @@ update msg model =
                             -- move/delete pebble
                             let
                                 ( ( i, j ), selectedCell ) =
-                                    (getPositionCellIfExists ( x, y ) (\key cell -> cell.state == Selected) gameState.board)
+                                    (getPositionCellIfExists (\_ cell -> cell.state == Selected) gameState.board)
                             in
                                 ( movePebble x y i j selectedCell currentCell gameState, togglePlayer gameState )
                         else
@@ -133,8 +133,9 @@ isEnemyIsKillable cell currentPlayer =
         |> Maybe.withDefault False
 
 
-togglePlayer model =
-    if model.currentPlayer == WhitePlayer then
+togglePlayer : GameState -> Player
+togglePlayer gameState =
+    if gameState.currentPlayer == WhitePlayer then
         BlackPlayer
     else
         WhitePlayer
@@ -184,6 +185,7 @@ isAnyPebbleSelected gameState =
         |> not
 
 
+isNeighbour : Int -> Int -> Int -> Int -> Bool
 isNeighbour i j x y =
     -- top
     (i == x - 1 && j == y)
@@ -195,7 +197,8 @@ isNeighbour i j x y =
         || (i == x && j == y + 1)
 
 
-getPositionCellIfExists k f dict =
+getPositionCellIfExists : (Position -> Cell -> Bool) -> Dict Position Cell -> ( Position, Cell )
+getPositionCellIfExists f dict =
     dict
         |> Dict.Extra.find f
         |> Maybe.withDefault
