@@ -55,10 +55,6 @@ type alias Position =
 -- required for encode/decode to json
 
 
-type alias CellWrapper =
-    { pos : Position, cell : Cell }
-
-
 type Msg
     = OnCellClick Int Int Cell
     | GameStateChanged (Result String GameState)
@@ -205,7 +201,6 @@ boardEncoder : Dict.Dict Position Cell -> Encode.Value
 boardEncoder board =
     board
         |> Dict.toList
-        |> List.map (\( pos, cell ) -> { pos = pos, cell = cell })
         |> List.map cellWrapperEncoder
         |> Encode.list
 
@@ -231,11 +226,11 @@ decodeCellWrapper =
         (field "cell" cellDecoder)
 
 
-cellWrapperEncoder : CellWrapper -> Encode.Value
-cellWrapperEncoder v =
+cellWrapperEncoder : ( Position, Cell ) -> Encode.Value
+cellWrapperEncoder ( pos, cell ) =
     Encode.object
-        [ ( "pos", positionEncoder v.pos )
-        , ( "cell", cellEncoder v.cell )
+        [ ( "pos", positionEncoder pos )
+        , ( "cell", cellEncoder cell )
         ]
 
 
