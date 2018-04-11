@@ -213,21 +213,20 @@ boardEncoder board =
 boardDecoder : Decode.Decoder (Dict Position Cell)
 boardDecoder =
     let
-        asTuple : CellWrapper -> ( Position, Cell )
-        asTuple cw =
-            ( cw.pos, cw.cell )
-
-        toDict : List CellWrapper -> Dict Position Cell
+        -- asTuple : CellWrapper -> ( Position, Cell )
+        -- asTuple cw =
+        --     ( cw.pos, cw.cell )
+        toDict : List ( Position, Cell ) -> Dict Position Cell
         toDict wrappers =
-            wrappers |> List.map asTuple |> Dict.fromList
+            wrappers |> Dict.fromList
     in
         (Decode.list decodeCellWrapper)
             |> Decode.map toDict
 
 
-decodeCellWrapper : Decode.Decoder CellWrapper
+decodeCellWrapper : Decode.Decoder ( Position, Cell )
 decodeCellWrapper =
-    Decode.map2 CellWrapper
+    Decode.map2 (,)
         (field "pos" positionDecoder)
         (field "cell" cellDecoder)
 
