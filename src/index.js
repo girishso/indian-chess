@@ -77,13 +77,13 @@ if (gameId === null) {
         }
         if (typeof json.game_state !== "undefined" && json.game_state !== null) {
             let uncmpd = decompress(json.game_state)
-            console.log("  >> uncmpd: ", uncmpd)
+            // console.log("  >> uncmpd: ", uncmpd)
             app.ports.gameStateChanged.send(JSON.parse(uncmpd))
         }
     })
     app.ports.sendGameState.subscribe(str => {
         let compressed = compress(str)
-        console.log("  >> sending: ", str)
+        // console.log("  >> sending: ", str)
         gamesRootRef.child(gameId).update({ game_state: compressed, timestamp: Date.now() })
     })
     app.ports.alert.subscribe(str => window.alert(str))
