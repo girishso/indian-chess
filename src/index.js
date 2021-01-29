@@ -83,6 +83,7 @@ if (gameId === null) {
     })
     app.ports.sendGameState.subscribe(str => {
         let compressed = compress(str)
+        // console.log("  >> sending: ", str)
         gamesRootRef.child(gameId).update({ game_state: compressed, timestamp: Date.now() })
     })
     app.ports.alert.subscribe(str => window.alert(str))
