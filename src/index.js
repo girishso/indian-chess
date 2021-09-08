@@ -77,7 +77,7 @@ if (gameId === null) {
         }
         if (typeof json.game_state !== "undefined" && json.game_state !== null) {
             let uncmpd = decompress(json.game_state)
-            // console.log("  >> uncmpd: ", uncmpd)
+            console.log("  >> uncmpd: ", uncmpd)
             app.ports.gameStateChanged.send(JSON.parse(uncmpd))
         }
     })
